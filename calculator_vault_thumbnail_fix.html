@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Calculator</title>
+<style>
+  :root{
+    --bg:#0F1113;
+    --frame:#1B1D20;
+    --calc-body:#202327;
+    --screen-bg:#CFE0C6;
+    --screen-bg-2:#C3D8B8;
+    --screen-text:#1B2A1E;
+    --key-num-bg:#2B2F34;
+    --key-num-bg-hi:#33373D;
+    --key-num-text:#ECEDEE;
+    --key-func-bg:#383D43;
+    --key-func-bg-hi:#40454C;
+    --key-func-text:#ECEDEE;
+    --key-op-bg:#B8862B;
+    --key-op-bg-hi:#C79A3E;
+    --key-op-text:#1B1400;
+    --key-equal-bg:#4F7A6B;
+    --key-equal-bg-hi:#5C8C7B;
+    --key-equal-text:#E9F3EF;
+    --danger:#C0503E;
+    --vault-bg:#16181A;
+    --card-bg:#1F2225;
+    --card-bg-hi:#262A2E;
+    --border:rgba(255,255,255,0.08);
+    --muted: rgba(236,237,238,0.55);
+    --muted-dim: rgba(236,237,238,0.3);
+    --muted-strong: rgba(236,237,238,0.8);
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Roboto Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  html{ transition: background-color .3s ease; }
+  body, .phone, .calc, .vault, .gate-card, .modal-card, .menu-panel, .settings-screen{
+    transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+  }
+
+  /* ---------- Themes: swap by adding a theme-X class to <html>. ---------- */
+  :root.theme-midnight{
+    --bg:#0A0E1A; --frame:#141A2B; --calc-body:#1B2338; --screen-bg:#C9D6EE; --screen-bg-2:#B7C6E3; --screen-text:#131B2E;
+    --key-num-bg:#232C45; --key-num-bg-hi:#2B3552; --key-num-text:#E7ECF6;
+    --key-func-bg:#2C3654; --key-func-bg-hi:#34405F; --key-func-text:#E7ECF6;
+    --key-op-bg:#4A6FA5; --key-op-bg-hi:#5A82BC; --key-op-text:#0B1220;
+    --danger:#C0503E; --vault-bg:#0D1220; --card-bg:#161D30; --card-bg-hi:#1D2640; --border:rgba(255,255,255,0.08);
+  }
+  :root.theme-emerald{
+    --bg:#0A130F; --frame:#111F19; --calc-body:#16281F; --screen-bg:#CFE9D6; --screen-bg-2:#BEDFC7; --screen-text:#0F2A1B;
+    --key-num-bg:#1C3327; --key-num-bg-hi:#243E30; --key-num-text:#E7F5EC;
+    --key-func-bg:#264334; --key-func-bg-hi:#2F4F3F; --key-func-text:#E7F5EC;
+    --key-op-bg:#4C8B63; --key-op-bg-hi:#5AA073; --key-op-text:#08150E;
+    --danger:#C0503E; --vault-bg:#0B1712; --card-bg:#132018; --card-bg-hi:#1A2A20; --border:rgba(255,255,255,0.08);
+  }
+  :root.theme-purple{
+    --bg:#120A1A; --frame:#1D1229; --calc-body:#251935; --screen-bg:#DFD2EF; --screen-bg-2:#D0BEE6; --screen-text:#241733;
+    --key-num-bg:#2E1F42; --key-num-bg-hi:#38274F; --key-num-text:#F1EBF8;
+    --key-func-bg:#372A4D; --key-func-bg-hi:#42335C; --key-func-text:#F1EBF8;
+    --key-op-bg:#8B5FBF; --key-op-bg-hi:#9C74CE; --key-op-text:#140B1E;
+    --danger:#C0503E; --vault-bg:#0F0917; --card-bg:#1B1226; --card-bg-hi:#241931; --border:rgba(255,255,255,0.08);
+  }
+  :root.theme-sunset{
+    --bg:#160E0A; --frame:#241610; --calc-body:#2E1C14; --screen-bg:#F2D9BC; --screen-bg-2:#EEC79E; --screen-text:#2E1B0C;
+    --key-num-bg:#3A2419; --key-num-bg-hi:#452C1F; --key-num-text:#F7EAE0;
+    --key-func-bg:#452C1F; --key-func-bg-hi:#523526; --key-func-text:#F7EAE0;
+    --key-op-bg:#C97A3B; --key-op-bg-hi:#DA8C4A; --key-op-text:#1C0F05;
+    --danger:#B04A3A; --vault-bg:#130C08; --card-bg:#1F140E; --card-bg-hi:#291A12; --border:rgba(255,255,255,0.08);
+  }
+  :root.theme-neon{
+    --bg:#05060A; --frame:#0C0F16; --calc-body:#10141D; --screen-bg:#0E1B18; --screen-bg-2:#0B1614; --screen-text:#4CF2D6;
+    --key-num-bg:#12161F; --key-num-bg-hi:#181D29; --key-num-text:#E8FBFF;
+    --key-func-bg:#181D29; --key-func-bg-hi:#1F2531; --key-func-text:#E8FBFF;
+    --key-op-bg:#2FD7C4; --key-op-bg-hi:#4CE6D4; --key-op-text:#04120F;
+    --danger:#FF5C7A; --vault-bg:#05070B; --card-bg:#0D111A; --card-bg-hi:#141A26; --border:rgba(79,246,255,0.12);
+  }
+  :root.theme-minimal{
+    --bg:#EDEEF0; --frame:#FFFFFF; --calc-body:#F5F6F7; --screen-bg:#FFFFFF; --screen-bg-2:#EDEFF1; --screen-text:#14181C;
+    --key-num-bg:#EEF0F2; --key-num-bg-hi:#E2E5E8; --key-num-text:#1C2126;
+    --key-func-bg:#E2E5E8; --key-func-bg-hi:#D6DADE; --key-func-text:#1C2126;
+    --key-op-bg:#3E6FBF; --key-op-bg-hi:#5482D1; --key-op-text:#FFFFFF;
+    --danger:#C0503E; --vault-bg:#F7F8F9; --card-bg:#FFFFFF; --card-bg-hi:#EEF0F2; --border:rgba(0,0,0,0.08);
+    --muted:#6B7280; --muted-dim:rgba(20,24,28,0.35); --muted-strong:#3E4450;
+  }
+  :root.theme-classic{
+    --bg:#D8D9DA; --frame:#EDEDED; --calc-body:#DCDDDE; --screen-bg:#C7D6C3; --screen-bg-2:#B9CBB4; --screen-text:#1B2A1E;
+    --key-num-bg:#F2F2F2; --key-num-bg-hi:#E6E6E6; --key-num-text:#222325;
+    --key-func-bg:#E2E3E4; --key-func-bg-hi:#D5D6D7; --key-func-text:#222325;
+    --key-op-bg:#9AA0A6; --key-op-bg-hi:#AEB4BA; --key-op-text:#101112;
+    --danger:#B0483A; --vault-bg:#F0F1F1; --card-bg:#FFFFFF; --card-bg-hi:#EDEDEE; --border:rgba(0,0,0,0.1);
+    --muted:#6B6E71; --muted-dim:rgba(20,24,28,0.3); --muted-strong:#3F4245;
+  }
+
+  .settings-screen{ position:fixed; inset:0; background: var(--vault-bg); display:flex; flex-direction:column;
+    transform: translateX(100%); transition: transform 0.35s cubic-bezier(.2,.8,.2,1); z-index: 55; }
+  .settings-screen.open{ transform: translateX(0); }
+  .settings-header{ display:flex; align-items:center; gap:12px; padding: 20px; border-bottom:1px solid var(--border); }
+  .settings-header h2{ font-size:17px; margin:0; font-weight:700; }
+  .settings-body{ flex:1; overflow-y:auto; padding: 8px 20px 40px; }
+  .settings-section{ margin-top:22px; }
+  .settings-section h3{ font-size:12.5px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin:0 0 12px; font-weight:700; }
+  .theme-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
+  .theme-swatch{ background: var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:10px; cursor:pointer; text-align:left; }
+  .theme-swatch.active{ outline:2px solid var(--key-equal-bg); }
+  .theme-swatch .preview{ height:34px; border-radius:8px; margin-bottom:8px; display:flex; overflow:hidden; }
+  .theme-swatch .preview span{ flex:1; }
+  .theme-swatch .label{ font-size:12.5px; color: var(--key-num-text); }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0; padding:0; height:100%;
+    background: radial-gradient(circle at 50% 0%, #191b1e, var(--bg) 65%);
+    font-family: var(--sans);
+    color: var(--key-num-text);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  #stage{ min-height:100%; display:flex; align-items:center; justify-content:center; padding: 28px 16px; }
+
+  /* ---------- Calculator (UNCHANGED) ---------- */
+  .phone{ width: 340px; max-width: 100%; background: var(--frame); border-radius: 34px; padding: 14px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.03); }
+  .calc{ background: var(--calc-body); border-radius: 26px; padding: 18px 16px 22px; }
+  .screen{ background: linear-gradient(160deg, var(--screen-bg), var(--screen-bg-2)); border-radius: 16px;
+    padding: 26px 20px 18px; margin-bottom: 18px; position: relative; overflow: hidden;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.25); }
+  .screen::before{ content:""; position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 3px);
+    pointer-events:none; opacity:0.5; }
+  .screen-label{ font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--screen-text);
+    opacity: 0.55; font-family: var(--mono); margin-bottom: 6px; }
+  .screen-expr{ font-family: var(--mono); color: var(--screen-text); opacity: 0.6; font-size: 15px; min-height: 18px;
+    text-align: right; white-space: nowrap; overflow-x:auto; }
+  .screen-main{ font-family: var(--mono); color: var(--screen-text); font-size: 42px; font-weight: 600;
+    text-align: right; letter-spacing: 0.01em; overflow-x:auto; white-space: nowrap; }
+  .keys{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .key{ border:none; border-radius: 16px; padding: 18px 0; font-size: 19px; font-family: var(--mono); font-weight: 600;
+    background: var(--key-num-bg); color: var(--key-num-text); cursor:pointer;
+    transition: transform 0.05s ease, background 0.15s ease; box-shadow: 0 2px 0 rgba(0,0,0,0.25); }
+  .key:active{ transform: translateY(1px) scale(0.97); }
+  .key.num:hover{ background: var(--key-num-bg-hi); }
+  .key.func{ background: var(--key-func-bg); color: var(--key-func-text); font-size:17px; }
+  .key.func:hover{ background: var(--key-func-bg-hi); }
+  .key.op{ background: var(--key-op-bg); color: var(--key-op-text); font-size:20px; }
+  .key.op:hover{ background: var(--key-op-bg-hi); }
+  .key.equal{ background: var(--key-equal-bg); color: var(--key-equal-text); grid-row: span 1; }
+  .key.equal:hover{ background: var(--key-equal-bg-hi); }
+  .key.zero{ grid-column: span 2; text-align:left; padding-left: 26px; }
+  .key.shake{ animation: shake 0.4s; }
+  @keyframes shake{ 10%,90%{transform:translateX(-1px);} 20%,80%{transform:translateX(2px);}
+    30%,50%,70%{transform:translateX(-4px);} 40%,60%{transform:translateX(4px);} }
+
+  /* ---------- Vault Gate overlay (UNCHANGED) ---------- */
+  .gate{ position:fixed; inset:0; background: rgba(10,11,12,0.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    display:flex; align-items:center; justify-content:center; padding: 20px; z-index: 50;
+    opacity:0; pointer-events:none; transition: opacity 0.25s ease; }
+  .gate.open{ opacity:1; pointer-events:auto; }
+  .gate-card{ width: 300px; max-width:100%; background: var(--frame); border-radius: 26px; padding: 26px 22px 22px;
+    text-align:center; box-shadow: 0 30px 70px -20px rgba(0,0,0,0.7); }
+  .gate-title{ font-size: 16px; font-weight:700; margin: 0 0 4px; }
+  .gate-sub{ font-size: 12.5px; color: var(--muted); margin: 0 0 18px; line-height:1.4; }
+  .dots{ display:flex; justify-content:center; gap:14px; margin-bottom: 20px; }
+  .dot{ width:12px; height:12px; border-radius:50%; border: 1.5px solid var(--muted-dim); background: transparent;
+    transition: background 0.15s ease, border-color 0.15s ease; }
+  .dot.filled{ background: var(--key-equal-bg); border-color: var(--key-equal-bg); }
+  .gate-keys{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .gate-key{ border:none; border-radius: 14px; padding: 14px 0; font-family: var(--mono); font-size:17px; font-weight:600;
+    background: var(--key-num-bg); color: var(--key-num-text); cursor:pointer; }
+  .gate-key:active{ background: var(--key-num-bg-hi); }
+  .gate-key:disabled{ opacity:0.35; cursor:default; }
+  .gate-error{ font-size:12px; color: var(--danger); min-height:16px; margin-bottom: 6px; font-weight:600; }
+  .gate-cancel{ background:none; border:none; color: var(--muted); font-size: 13px; cursor:pointer;
+    padding: 6px; margin-top:4px; }
+  .gate-cancel:hover{ color: var(--muted-strong); }
+
+  /* ---------- Vault ---------- */
+  .vault{ position:fixed; inset:0; background: var(--vault-bg); display:flex; flex-direction:column;
+    transform: translateY(100%); transition: transform 0.35s cubic-bezier(.2,.8,.2,1); z-index: 40; }
+  .vault.open{ transform: translateY(0); }
+  .vault-header{ display:flex; align-items:center; justify-content:space-between; padding: 20px 20px 14px;
+    border-bottom: 1px solid var(--border); position: relative; }
+  .vault-title{ font-size:18px; font-weight:700; letter-spacing:0.01em; }
+  .vault-note{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .header-actions{ display:flex; gap:8px; }
+  .icon-btn{ background: var(--card-bg); border:1px solid var(--border); color: var(--key-num-text);
+    width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:16px; }
+  .icon-btn:hover{ background: var(--card-bg-hi); }
+  .icon-btn.active{ background: var(--key-equal-bg); color: var(--key-equal-text); }
+
+  .toolbar{ padding: 12px 20px; display:flex; flex-direction:column; gap:8px; border-bottom: 1px solid var(--border); }
+  .toolbar-row{ display:flex; gap:8px; }
+  .search-input{ flex:1; background: var(--card-bg); border:1px solid var(--border); color: var(--key-num-text);
+    border-radius:12px; padding:9px 12px; font-family: var(--sans); font-size:13.5px; outline:none; }
+  .search-input::placeholder{ color: var(--muted-dim); }
+  .sort-select{ background: var(--card-bg); border:1px solid var(--border); color: var(--key-num-text);
+    border-radius:12px; padding:9px 10px; font-size:13px; font-family: var(--sans); outline:none; }
+  .chip{ background: var(--card-bg); border:1px solid var(--border); color: var(--key-num-text); border-radius:20px;
+    padding:8px 14px; font-size:12.5px; cursor:pointer; font-family: var(--sans); white-space:nowrap; }
+  .chip:hover{ background: var(--card-bg-hi); }
+  .chip.active{ background: var(--key-equal-bg); color: var(--key-equal-text); border-color: transparent; }
+  .chip.danger{ color:#fff; background: var(--danger); border-color:transparent; }
+
+  .menu-panel{ position:absolute; top:64px; right:20px; z-index:45; background: var(--frame);
+    border:1px solid var(--border); border-radius:16px; box-shadow: 0 20px 50px -15px rgba(0,0,0,0.6);
+    overflow:hidden; min-width:190px; }
+  .menu-panel button{ display:block; width:100%; text-align:left; background:none; border:none;
+    color: var(--key-num-text); font-family: var(--sans); font-size:13.5px; padding: 13px 16px; cursor:pointer; }
+  .menu-panel button:hover{ background: var(--card-bg-hi); }
+  .menu-panel button.danger{ color: #E8998E; }
+  .menu-panel hr{ border:none; border-top:1px solid var(--border); margin:0; }
+
+  .vault-body{ flex:1; overflow-y:auto; padding: 18px 20px 100px; position:relative; }
+  .empty-state{ height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; color: var(--muted); gap:8px; padding-top: 40px; }
+  .empty-state .glyph{ font-size:34px; margin-bottom:6px; opacity:0.6; }
+  .empty-state p{ margin:0; font-size:14px; max-width:220px; line-height:1.5; }
+  .spacer{ width:1px; }
+  .grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+  .cell{ position:relative; aspect-ratio: 1/1; background: var(--card-bg); border:1px solid var(--border);
+    border-radius: 14px; overflow:hidden; cursor:pointer; }
+  .cell img, .cell video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .cell .kind{ position:absolute; bottom:6px; left:6px; font-size:10px; background: rgba(0,0,0,0.55); color:#fff;
+    padding:2px 6px; border-radius:6px; font-family: var(--mono); }
+  .cell .del{ position:absolute; top:5px; right:5px; width:22px; height:22px; border-radius:50%;
+    background: rgba(0,0,0,0.55); color:#fff; border:none; font-size:12px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; }
+  .cell .star{ position:absolute; top:5px; left:5px; width:22px; height:22px; border-radius:50%;
+    background: rgba(0,0,0,0.55); color:#fff; border:none; font-size:12px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; }
+  .cell .star.on{ color:#F2C14E; }
+  .cell .check{ position:absolute; top:5px; left:5px; width:22px; height:22px; border-radius:50%;
+    border:2px solid rgba(255,255,255,0.7); background: rgba(0,0,0,0.35); display:none;
+    align-items:center; justify-content:center; font-size:12px; color:#fff; }
+  .cell.selecting .check{ display:flex; }
+  .cell.selecting .star, .cell.selecting .del{ display:none; }
+  .cell.selected .check{ background: var(--key-equal-bg); border-color: var(--key-equal-bg); }
+  .cell.selected{ outline: 2px solid var(--key-equal-bg); }
+  .cell .ph{ width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    color: var(--muted-dim); font-size:22px; }
+  .cell.corrupted .ph{ color: var(--danger); opacity:0.6; }
+
+  .fab{ position:absolute; right:20px; bottom:26px; width:56px; height:56px; border-radius:50%;
+    background: var(--key-equal-bg); color: var(--key-equal-text); border:none; font-size:26px; cursor:pointer;
+    box-shadow: 0 10px 26px -8px rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; }
+  .fab:hover{ background: var(--key-equal-bg-hi); }
+
+  .select-bar{ position:absolute; left:0; right:0; bottom:0; z-index:41; background: var(--frame);
+    border-top:1px solid var(--border); padding: 14px 20px; display:flex; align-items:center;
+    justify-content:space-between; font-size:13.5px; }
+  .select-bar .actions{ display:flex; gap:8px; }
+
+  /* ---------- Viewer ---------- */
+  .viewer{ position:fixed; inset:0; background: rgba(0,0,0,0.94); display:none; align-items:center;
+    justify-content:center; z-index:60; flex-direction:column; overflow:hidden; }
+  .viewer.open{ display:flex; }
+  .viewer-media-wrap{ touch-action:none; max-width:100vw; max-height:100vh; display:flex; align-items:center; justify-content:center; }
+  .viewer-media{ max-width:92vw; max-height:76vh; border-radius:10px; transition: transform 0.08s linear; }
+  .viewer-bar{ position:absolute; top:18px; left:18px; right:18px; display:flex; justify-content:space-between; z-index:2; }
+  .viewer-bar .group{ display:flex; gap:8px; }
+  .viewer-nav{ position:absolute; top:50%; transform: translateY(-50%); width:40px; height:40px; border-radius:50%;
+    background: rgba(255,255,255,0.08); border:none; color:#fff; font-size:18px; display:flex;
+    align-items:center; justify-content:center; cursor:pointer; }
+  .viewer-nav.prev{ left:14px; }
+  .viewer-nav.next{ right:14px; }
+  .viewer-loading{ color: rgba(255,255,255,0.6); font-size:13px; font-family: var(--mono); }
+
+  .modal{ position:fixed; inset:0; background: rgba(10,11,12,0.72); -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px); display:flex; align-items:center; justify-content:center; padding:20px; z-index:70; }
+  .modal-card{ width:300px; max-width:100%; background: var(--frame); border-radius:22px; padding:22px;
+    text-align:center; box-shadow: 0 30px 70px -20px rgba(0,0,0,0.7); }
+  .modal-card h3{ font-size:15px; margin:0 0 8px; }
+  .modal-card p{ font-size:13px; color: var(--muted); margin:0 0 18px; line-height:1.5; }
+  .modal-actions{ display:flex; gap:10px; }
+  .modal-actions button{ flex:1; border:none; border-radius:12px; padding:11px 0; font-size:13.5px;
+    cursor:pointer; font-family: var(--sans); font-weight:600; }
+  .modal-actions .confirm{ background: var(--danger); color:#fff; }
+  .modal-actions .confirm.safe{ background: var(--key-equal-bg); color: var(--key-equal-text); }
+  .modal-actions .cancel{ background: var(--card-bg); color: var(--key-num-text); }
+  .spinner{ width:28px; height:28px; border-radius:50%; margin:0 auto 14px; border:3px solid var(--muted-dim);
+    border-top-color: var(--key-equal-bg); animation: spin 0.8s linear infinite; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .toast{ position:fixed; left:50%; bottom:26px; transform: translateX(-50%); background: var(--frame);
+    color: var(--key-num-text); border:1px solid var(--border); padding:11px 18px; border-radius:14px;
+    font-size:13px; z-index:80; box-shadow: 0 15px 40px -12px rgba(0,0,0,0.6); opacity:0; pointer-events:none;
+    transition: opacity 0.2s ease; max-width: 86vw; text-align:center; }
+  .toast.show{ opacity:1; }
+
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="phone">
+    <div class="calc">
+      <div class="screen">
+        <div class="screen-label">Calculator</div>
+        <div class="screen-expr" id="exprLine">&nbsp;</div>
+        <div class="screen-main" id="mainLine">0</div>
+      </div>
+      <div class="keys" id="keys">
+        <button class="key func" data-fn="clear">AC</button>
+        <button class="key func" data-fn="sign">+/-</button>
+        <button class="key func" data-fn="percent">%</button>
+        <button class="key op" data-op="÷">÷</button>
+        <button class="key num" data-num="7">7</button>
+        <button class="key num" data-num="8">8</button>
+        <button class="key num" data-num="9">9</button>
+        <button class="key op" data-op="×">×</button>
+        <button class="key num" data-num="4">4</button>
+        <button class="key num" data-num="5">5</button>
+        <button class="key num" data-num="6">6</button>
+        <button class="key op" data-op="−">−</button>
+        <button class="key num" data-num="1">1</button>
+        <button class="key num" data-num="2">2</button>
+        <button class="key num" data-num="3">3</button>
+        <button class="key op" data-op="+">+</button>
+        <button class="key num zero" data-num="0">0</button>
+        <button class="key num" data-num=".">.</button>
+        <button class="key equal" id="equalBtn">=</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vault PIN gate -->
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-title" id="gateTitle">Enter PIN</div>
+    <div class="gate-sub" id="gateSub">This unlocks your private vault.</div>
+    <div class="dots" id="dots">
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+    <div class="gate-error" id="gateError" role="alert">&nbsp;</div>
+    <div class="gate-keys" id="gateKeys">
+      <button class="gate-key" data-g="1">1</button>
+      <button class="gate-key" data-g="2">2</button>
+      <button class="gate-key" data-g="3">3</button>
+      <button class="gate-key" data-g="4">4</button>
+      <button class="gate-key" data-g="5">5</button>
+      <button class="gate-key" data-g="6">6</button>
+      <button class="gate-key" data-g="7">7</button>
+      <button class="gate-key" data-g="8">8</button>
+      <button class="gate-key" data-g="9">9</button>
+      <button class="gate-key" data-g="back" aria-label="Backspace">⌫</button>
+      <button class="gate-key" data-g="0">0</button>
+      <button class="gate-key" data-g="ok" aria-hidden="true">•</button>
+    </div>
+    <button class="gate-cancel" id="gateCancel">Back to calculator</button>
+  </div>
+</div>
+
+<!-- Vault -->
+<div class="vault" id="vault">
+  <div class="vault-header">
+    <div>
+      <div class="vault-title">Vault</div>
+      <div class="vault-note" id="vaultNote">Encrypted on this device. Auto-locks after 2 minutes idle.</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="menuBtn" title="More" aria-label="More options">⋮</button>
+      <button class="icon-btn" id="lockBtn" title="Lock vault" aria-label="Lock vault">🔒</button>
+    </div>
+    <div class="menu-panel" id="menuPanel" style="display:none;" role="menu">
+      <button id="menuSettings">Settings</button>
+      <hr>
+      <button id="menuChangePin">Change PIN</button>
+      <button id="menuExport">Export vault…</button>
+      <button id="menuImport">Import vault…</button>
+      <hr>
+      <button id="menuDeleteAll" class="danger">Delete all vault data</button>
+    </div>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <div class="toolbar-row">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search name, type, date, size…" aria-label="Search vault">
+      <select id="sortSelect" class="sort-select" aria-label="Sort">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="images">Images only</option>
+        <option value="videos">Videos only</option>
+      </select>
+    </div>
+    <div class="toolbar-row">
+      <button class="chip" id="favFilterBtn">★ Favorites</button>
+      <button class="chip" id="selectModeBtn">Select</button>
+    </div>
+  </div>
+
+  <div class="vault-body" id="vaultBody">
+    <div class="empty-state" id="emptyState">
+      <div class="glyph">＋</div>
+      <p>No files yet. Tap the button below to add private photos or videos.</p>
+    </div>
+    <div id="topSpacer" class="spacer"></div>
+    <div class="grid" id="grid" style="display:none;"></div>
+    <div id="bottomSpacer" class="spacer"></div>
+  </div>
+
+  <div class="select-bar" id="selectBar" style="display:none;">
+    <span id="selectCount">0 selected</span>
+    <div class="actions">
+      <button class="chip danger" id="deleteSelectedBtn">Delete</button>
+      <button class="chip" id="cancelSelectBtn">Cancel</button>
+    </div>
+  </div>
+
+  <button class="fab" id="addBtn" aria-label="Add photos or videos">+</button>
+  <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none;">
+  <input type="file" id="importInput" accept=".vault" style="display:none;">
+</div>
+
+<!-- Settings screen -->
+<div class="settings-screen" id="settingsScreen">
+  <div class="settings-header">
+    <button class="icon-btn" id="settingsBack" aria-label="Back to vault">‹</button>
+    <h2>Settings</h2>
+  </div>
+  <div class="settings-body">
+    <div class="settings-section">
+      <h3>Theme</h3>
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Fullscreen viewer -->
+<div class="viewer" id="viewer">
+  <div class="viewer-bar">
+    <button class="icon-btn" id="viewerFav" title="Favorite" aria-label="Toggle favorite">☆</button>
+    <div class="group">
+      <button class="icon-btn" id="viewerRotate" title="Rotate" aria-label="Rotate">⤾</button>
+      <button class="icon-btn" id="viewerFullscreen" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+      <button class="icon-btn" id="viewerDelete" title="Delete" aria-label="Delete">🗑</button>
+      <button class="icon-btn" id="viewerClose" title="Close" aria-label="Close viewer">✕</button>
+    </div>
+  </div>
+  <button class="viewer-nav prev" id="viewerPrev" aria-label="Previous">‹</button>
+  <button class="viewer-nav next" id="viewerNext" aria-label="Next">›</button>
+  <div class="viewer-media-wrap" id="viewerMediaWrap"><div class="viewer-loading">Decrypting…</div></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+(function(){
+/* =========================================================================
+   Debug logging for the thumbnail pipeline only. Silent by default; enable
+   by opening the file with ?debug=1 appended to its URL. Uses console.error
+   (not console.log) so it stays visible even if the console is filtered to
+   errors/warnings only, and produces zero output in normal use.
+   ========================================================================= */
+const THUMB_DEBUG = (function(){
+  try { return new URLSearchParams(location.search).get('debug') === '1'; }
+  catch (e) { return false; }
+})();
+function dbg(...args){ if (THUMB_DEBUG) console.error('[vault-thumb-debug]', ...args); }
+
+
+/* =========================================================================
+   Error types — every storage/format failure gets a stable `code` so the UI
+   layer can show one consistent, friendly message instead of leaking raw
+   browser errors to the user.
+   ========================================================================= */
+class StorageError extends Error {
+  constructor(code, original){
+    super((original && original.message) || code);
+    this.code = code;
+    this.original = original || null;
+  }
+}
+class VaultFormatError extends Error {
+  constructor(code){ super(code); this.code = code; }
+}
+
+function humanizeError(e){
+  if (e instanceof StorageError){
+    switch (e.code){
+      case 'QUOTA_EXCEEDED': return 'Storage is full — free up space or delete some files and try again.';
+      case 'DB_OPEN_FAILED': return 'Could not open the vault database on this device.';
+      case 'DB_BLOCKED': return 'Close other tabs that have this vault open, then try again.';
+      case 'WRITE_FAILED': return 'Could not save that change. Please try again.';
+      case 'READ_FAILED': return 'Could not read from the vault database.';
+      default: return 'A storage error occurred.';
+    }
+  }
+  if (e instanceof VaultFormatError){
+    switch (e.code){
+      case 'TRUNCATED': return 'This vault file appears to be incomplete or corrupted.';
+      case 'BAD_MAGIC': return "That doesn't look like a valid vault file.";
+      case 'UNSUPPORTED_VERSION': return 'This vault file was created with an incompatible app version.';
+      case 'WRONG_PIN': return 'Incorrect PIN, or the vault file has been modified.';
+      default: return 'This vault file could not be read.';
+    }
+  }
+  return 'Something went wrong. Please try again.';
+}
+
+/* =========================================================================
+   CryptoService — key derivation and AES-GCM encryption/decryption.
+   PBKDF2-SHA256 derives a key from the PIN + a random salt (the PIN itself
+   is never stored). Every encryption call uses a fresh random 12-byte IV,
+   so no two ciphertexts ever reuse an IV under the same key.
+   ========================================================================= */
+class CryptoService {
+  static PBKDF2_ITERATIONS = 250000;
+  static CHUNK_SIZE = 2 * 1024 * 1024; // 2MB — keeps memory bounded for large videos
+
+  static randomBytes(n){
+    // getRandomValues has a 65536-byte ceiling per call in every browser; we
+    // never request more than 16 bytes at a time here, so one call is always safe.
+    return crypto.getRandomValues(new Uint8Array(n));
+  }
+
+  static async deriveKey(pin, salt, iterations = CryptoService.PBKDF2_ITERATIONS){
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations, hash: 'SHA-256' },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false, // non-extractable: raw key material can never be read back out
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  static async encryptBuffer(key, buffer){
+    const iv = CryptoService.randomBytes(12);
+    const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, buffer);
+    return { iv, cipher: new Uint8Array(cipher) };
+  }
+  static async decryptBuffer(key, iv, cipherBytes){
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, cipherBytes);
+    return new Uint8Array(plain);
+  }
+  static async encryptJson(key, obj){
+    const buf = new TextEncoder().encode(JSON.stringify(obj));
+    return CryptoService.encryptBuffer(key, buf);
+  }
+  static async decryptJson(key, iv, cipherBytes){
+    const plain = await CryptoService.decryptBuffer(key, iv, cipherBytes);
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  // Encrypts a File in fixed-size chunks, never holding more than one chunk in memory at once.
+  static async encryptFile(file, key, onProgress){
+    const chunks = [];
+    const total = file.size || 1;
+    for (let offset = 0; offset < file.size; offset += CryptoService.CHUNK_SIZE){
+      const slice = file.slice(offset, offset + CryptoService.CHUNK_SIZE);
+      const buf = await slice.arrayBuffer();
+      const { iv, cipher } = await CryptoService.encryptBuffer(key, buf);
+      chunks.push({ iv, blob: new Blob([cipher]) });
+      if (onProgress) onProgress(Math.min(1, (offset + slice.size) / total));
+    }
+    if (chunks.length === 0){
+      // zero-byte file edge case: still produce one (empty) encrypted chunk record
+      const { iv, cipher } = await CryptoService.encryptBuffer(key, new ArrayBuffer(0));
+      chunks.push({ iv, blob: new Blob([cipher]) });
+    }
+    return chunks;
+  }
+
+  // Decrypts a stored chunk array back into a single Blob for playback/display.
+  // The assembled plaintext only lives in memory transiently (viewer open / thumbnail decode).
+  static async decryptChunksToBlob(chunkRecords, key, mimeType){
+    const parts = [];
+    for (const rec of chunkRecords){
+      const cipherBuf = await rec.blob.arrayBuffer();
+      const plain = await CryptoService.decryptBuffer(key, rec.iv, new Uint8Array(cipherBuf));
+      parts.push(plain);
+    }
+    return new Blob(parts, { type: mimeType || 'application/octet-stream' });
+  }
+}
+
+/* =========================================================================
+   Binary framing helpers for the .vault container format (see VaultPackager).
+   No JSON, no base64 — just length-prefixed byte sections, so the exported
+   file is opaque binary rather than a human-readable structure.
+   ========================================================================= */
+class BufBuilder {
+  constructor(){ this.parts = []; }
+  pushBytes(u8){ this.parts.push(u8 instanceof Uint8Array ? u8 : new Uint8Array(u8)); }
+  pushU8(n){ this.pushBytes(new Uint8Array([n])); }
+  pushU32(n){ const b = new Uint8Array(4); new DataView(b.buffer).setUint32(0, n, true); this.pushBytes(b); }
+  toBlob(){ return new Blob(this.parts); }
+}
+class BufReader {
+  constructor(u8){ this.u8 = u8; this.pos = 0; this.view = new DataView(u8.buffer, u8.byteOffset, u8.byteLength); }
+  _need(n){ if (this.pos + n > this.u8.length) throw new VaultFormatError('TRUNCATED'); }
+  readBytes(n){ this._need(n); const b = this.u8.subarray(this.pos, this.pos + n).slice(); this.pos += n; return b; }
+  readU32(){ this._need(4); const v = this.view.getUint32(this.pos, true); this.pos += 4; return v; }
+  readU8(){ this._need(1); const v = this.u8[this.pos]; this.pos += 1; return v; }
+}
+
+/* =========================================================================
+   VaultPackager — builds/parses the single-file encrypted .vault container.
+   Everything beyond the small header (salt/iterations/verification blob,
+   none of which reveal file content) is already-encrypted ciphertext, so
+   packaging is a structural copy, not a re-encryption pass — this keeps
+   export/import fast and memory-bounded even for very large libraries.
+   ========================================================================= */
+class VaultPackager {
+  static MAGIC = new TextEncoder().encode('SVL2');
+  static FORMAT_VERSION = 2;
+
+  static async export(items, securityMeta, onProgress){
+    const b = new BufBuilder();
+    b.pushBytes(VaultPackager.MAGIC);
+    b.pushU8(VaultPackager.FORMAT_VERSION);
+    b.pushBytes(securityMeta.salt);
+    b.pushU32(securityMeta.iterations);
+    b.pushBytes(securityMeta.verifyIv);
+    b.pushU32(securityMeta.verifyCipher.length);
+    b.pushBytes(securityMeta.verifyCipher);
+    b.pushU32(items.length);
+    let done = 0;
+    for (const item of items){
+      const metaBuf = new Uint8Array(await item.metaCipher.arrayBuffer());
+      b.pushBytes(item.metaIv); b.pushU32(metaBuf.length); b.pushBytes(metaBuf);
+      b.pushU8(item.thumb ? 1 : 0);
+      if (item.thumb){
+        const tBuf = new Uint8Array(await item.thumb.blob.arrayBuffer());
+        b.pushBytes(item.thumb.iv); b.pushU32(tBuf.length); b.pushBytes(tBuf);
+      }
+      b.pushU32(item.chunks.length);
+      for (const c of item.chunks){
+        const cBuf = new Uint8Array(await c.blob.arrayBuffer());
+        b.pushBytes(c.iv); b.pushU32(cBuf.length); b.pushBytes(cBuf);
+      }
+      done++;
+      if (onProgress) onProgress(done, items.length);
+    }
+    return b.toBlob();
+  }
+
+  // Parses the header only (enough to verify the PIN) without touching item data.
+  static parseHeader(buf){
+    const r = new BufReader(buf);
+    const magic = r.readBytes(4);
+    if (new TextDecoder().decode(magic) !== 'SVL2') throw new VaultFormatError('BAD_MAGIC');
+    const version = r.readU8();
+    if (version !== VaultPackager.FORMAT_VERSION) throw new VaultFormatError('UNSUPPORTED_VERSION');
+    const salt = r.readBytes(16);
+    const iterations = r.readU32();
+    const verifyIv = r.readBytes(12);
+    const verifyCipherLen = r.readU32();
+    const verifyCipher = r.readBytes(verifyCipherLen);
+    return { reader: r, salt, iterations, verifyIv, verifyCipher };
+  }
+
+  // Reads every item record after the header/PIN have already been validated.
+  // Corrupted or truncated individual items are reported, not thrown — a
+  // damaged item shouldn't abort the whole import.
+  static readItems(reader, onProgress){
+    const itemCount = reader.readU32();
+    const results = [];
+    for (let i = 0; i < itemCount; i++){
+      try {
+        const metaIv = reader.readBytes(12);
+        const metaLen = reader.readU32();
+        const metaCipher = reader.readBytes(metaLen);
+        const hasThumb = reader.readU8();
+        let thumb = null;
+        if (hasThumb){
+          const tIv = reader.readBytes(12);
+          const tLen = reader.readU32();
+          const tCipher = reader.readBytes(tLen);
+          thumb = { iv: tIv, blob: new Blob([tCipher]) };
+        }
+        const chunkCount = reader.readU32();
+        const chunks = [];
+        for (let c = 0; c < chunkCount; c++){
+          const iv = reader.readBytes(12);
+          const len = reader.readU32();
+          const cipher = reader.readBytes(len);
+          chunks.push({ iv, blob: new Blob([cipher]) });
+        }
+        results.push({ ok: true, metaIv, metaCipher: new Blob([metaCipher]), thumb, chunks });
+      } catch (e) {
+        results.push({ ok: false, error: e.message || 'CORRUPTED_ITEM' });
+      }
+      if (onProgress) onProgress(i + 1, itemCount);
+    }
+    return results;
+  }
+}
+
+/* =========================================================================
+   VaultDB — promise-based IndexedDB wrapper with schema versioning.
+   v1: initial stores. v2: item metadata moves from plaintext fields into an
+   encrypted blob (see SecurityManager.migrateLegacyItemsIfNeeded — that part
+   of the migration runs lazily after unlock, since it requires the
+   PIN-derived key, which isn't available during onupgradeneeded).
+   ========================================================================= */
+class VaultDB {
+  static DB_NAME = 'SecureVaultDB';
+  static DB_VERSION = 3;
+
+  constructor(){ this.db = null; }
+
+  open(){
+    return new Promise((resolve, reject) => {
+      let req;
+      try {
+        req = indexedDB.open(VaultDB.DB_NAME, VaultDB.DB_VERSION);
+      } catch (e) {
+        reject(new StorageError('DB_OPEN_FAILED', e)); return;
+      }
+      req.onupgradeneeded = (e) => {
+        const db = req.result;
+        if (e.oldVersion < 1){
+          db.createObjectStore('meta', { keyPath: 'id' });
+          db.createObjectStore('items', { keyPath: 'id', autoIncrement: true });
+        }
+        // v2 introduced encrypted metadata; no structural store/index changes were
+        // needed, so this branch is reserved for a future schema change.
+        if (e.oldVersion < 2){ /* no-op: structural migration point */ }
+        // v3: app preferences (theme, etc.) live in their own store, separate from
+        // the encrypted vault - these need to be readable before the PIN is entered
+        // so the calculator can render themed immediately on launch.
+        if (e.oldVersion < 3){
+          if (!db.objectStoreNames.contains('appSettings')) db.createObjectStore('appSettings', { keyPath: 'id' });
+        }
+      };
+      req.onblocked = () => reject(new StorageError('DB_BLOCKED'));
+      req.onerror = () => reject(new StorageError('DB_OPEN_FAILED', req.error));
+      req.onsuccess = () => { this.db = req.result; resolve(this.db); };
+    });
+  }
+
+  _tx(store, mode){ return this.db.transaction(store, mode).objectStore(store); }
+
+  getMeta(){
+    return new Promise((resolve, reject) => {
+      const r = this._tx('meta', 'readonly').get('security');
+      r.onsuccess = () => resolve(r.result || null);
+      r.onerror = () => reject(new StorageError('READ_FAILED', r.error));
+    });
+  }
+  putMeta(record){
+    return new Promise((resolve, reject) => {
+      record.id = 'security';
+      const r = this._tx('meta', 'readwrite').put(record);
+      r.onsuccess = () => resolve();
+      r.onerror = () => reject(VaultDB._wrapWriteError(r.error));
+    });
+  }
+  getSettings(){
+    return new Promise((resolve, reject) => {
+      const r = this._tx('appSettings', 'readonly').get('prefs');
+      r.onsuccess = () => resolve(r.result || null);
+      r.onerror = () => reject(new StorageError('READ_FAILED', r.error));
+    });
+  }
+  putSettings(record){
+    return new Promise((resolve, reject) => {
+      record.id = 'prefs';
+      const r = this._tx('appSettings', 'readwrite').put(record);
+      r.onsuccess = () => resolve();
+      r.onerror = () => reject(VaultDB._wrapWriteError(r.error));
+    });
+  }
+  addItem(item){
+    return new Promise((resolve, reject) => {
+      const r = this._tx('items', 'readwrite').add(item);
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => reject(VaultDB._wrapWriteError(r.error));
+    });
+  }
+  putItem(item){
+    return new Promise((resolve, reject) => {
+      const r = this._tx('items', 'readwrite').put(item);
+      r.onsuccess = () => resolve();
+      r.onerror = () => reject(VaultDB._wrapWriteError(r.error));
+    });
+  }
+  getAllItems(){
+    return new Promise((resolve, reject) => {
+      const r = this._tx('items', 'readonly').getAll();
+      r.onsuccess = () => resolve(r.result || []);
+      r.onerror = () => reject(new StorageError('READ_FAILED', r.error));
+    });
+  }
+  deleteItem(id){
+    return new Promise((resolve, reject) => {
+      const r = this._tx('items', 'readwrite').delete(id);
+      r.onsuccess = () => resolve();
+      r.onerror = () => reject(new StorageError('WRITE_FAILED', r.error));
+    });
+  }
+  clearAll(){
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(['meta', 'items'], 'readwrite');
+      tx.objectStore('meta').clear();
+      tx.objectStore('items').clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(new StorageError('WRITE_FAILED', tx.error));
+    });
+  }
+  static _wrapWriteError(err){
+    if (err && err.name === 'QuotaExceededError') return new StorageError('QUOTA_EXCEEDED', err);
+    return new StorageError('WRITE_FAILED', err);
+  }
+}
+
+/* =========================================================================
+   SecurityManager — PIN lifecycle, in-memory (never-persisted) CryptoKey,
+   lockout state, auto-lock, and legacy-data migration.
+   ========================================================================= */
+class SecurityManager {
+  constructor(db){
+    this.db = db;
+    this.activeKey = null;
+    this.lastActivity = Date.now();
+    this.autoLockTimer = null;
+    this.onAutoLock = null;
+    this.expectingBlur = false; // guards against false auto-lock from native file/import pickers
+  }
+
+  async hasVaultSetup(){ return !!(await this.db.getMeta()); }
+
+  // PIN digits are held only as a short-lived array, wiped immediately after
+  // the key is derived, so the plaintext PIN doesn't linger in memory.
+  async _deriveAndWipe(pinChars, salt, iterations){
+    const pinStr = pinChars.join('');
+    const key = await CryptoService.deriveKey(pinStr, salt, iterations);
+    pinChars.fill('0');
+    return key;
+  }
+
+  async setupPin(pinChars){
+    const salt = CryptoService.randomBytes(16);
+    const key = await this._deriveAndWipe(pinChars, salt, CryptoService.PBKDF2_ITERATIONS);
+    const { iv, cipher } = await CryptoService.encryptBuffer(key, new TextEncoder().encode('VAULT_OK_v1'));
+    await this.db.putMeta({
+      salt, verifyIv: iv, verifyCipher: cipher,
+      iterations: CryptoService.PBKDF2_ITERATIONS,
+      failedAttempts: 0, lockUntil: 0, dataFormatVersion: 2
+    });
+    this.activeKey = key;
+  }
+
+  async verifyPin(pinChars){
+    const meta = await this.db.getMeta();
+    if (!meta) return false;
+    const key = await this._deriveAndWipe(pinChars, meta.salt, meta.iterations);
+    try {
+      const plain = await CryptoService.decryptBuffer(key, meta.verifyIv, meta.verifyCipher);
+      const ok = new TextDecoder().decode(plain) === 'VAULT_OK_v1';
+      if (ok){
+        this.activeKey = key;
+        meta.failedAttempts = 0; meta.lockUntil = 0;
+        await this.db.putMeta(meta);
+      }
+      return ok;
+    } catch (e) {
+      return false; // AES-GCM auth-tag failure = wrong PIN
+    }
+  }
+
+  async recordFailedAttempt(){
+    const meta = await this.db.getMeta();
+    if (!meta) return { locked: false };
+    meta.failedAttempts = (meta.failedAttempts || 0) + 1;
+    if (meta.failedAttempts >= 5){
+      const overBy = meta.failedAttempts - 5;
+      meta.lockUntil = Date.now() + 30 * Math.pow(2, overBy) * 1000; // 30s, 60s, 120s, 240s...
+    }
+    await this.db.putMeta(meta);
+    return this.isLockedOut(meta);
+  }
+  isLockedOut(meta){
+    if (!meta || !meta.lockUntil) return { locked: false };
+    const remaining = meta.lockUntil - Date.now();
+    return remaining > 0 ? { locked: true, remainingMs: remaining } : { locked: false };
+  }
+  async getLockState(){ return this.isLockedOut(await this.db.getMeta()); }
+
+  async verifyOldPin(oldPinChars){
+    const meta = await this.db.getMeta();
+    if (!meta) throw new Error('No vault set up yet.');
+    const oldKey = await this._deriveAndWipe(oldPinChars, meta.salt, meta.iterations);
+    try {
+      const plain = await CryptoService.decryptBuffer(oldKey, meta.verifyIv, meta.verifyCipher);
+      if (new TextDecoder().decode(plain) !== 'VAULT_OK_v1') throw new Error('mismatch');
+    } catch (e) { throw new Error('Current PIN is incorrect.'); }
+    return oldKey;
+  }
+  async finalizeChangePin(newPinChars){
+    const newSalt = CryptoService.randomBytes(16);
+    const newKey = await this._deriveAndWipe(newPinChars, newSalt, CryptoService.PBKDF2_ITERATIONS);
+    const { iv, cipher } = await CryptoService.encryptBuffer(newKey, new TextEncoder().encode('VAULT_OK_v1'));
+    await this.db.putMeta({
+      salt: newSalt, verifyIv: iv, verifyCipher: cipher,
+      iterations: CryptoService.PBKDF2_ITERATIONS,
+      failedAttempts: 0, lockUntil: 0, dataFormatVersion: 2
+    });
+    this.activeKey = newKey;
+    return newKey;
+  }
+
+  // Drops the only copy of the key — nothing decryptable remains in memory afterward.
+  lock(){ this.activeKey = null; }
+  touch(){ this.lastActivity = Date.now(); }
+
+  startAutoLockWatch(){
+    const INACTIVITY_MS = 2 * 60 * 1000;
+    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(evt =>
+      window.addEventListener(evt, () => this.touch(), { passive: true }));
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && this.activeKey && !this.expectingBlur) this._triggerAutoLock();
+    });
+    clearInterval(this.autoLockTimer);
+    this.autoLockTimer = setInterval(() => {
+      if (this.activeKey && Date.now() - this.lastActivity > INACTIVITY_MS) this._triggerAutoLock();
+    }, 4000);
+  }
+  _triggerAutoLock(){
+    this.lock();
+    if (typeof this.onAutoLock === 'function') this.onAutoLock();
+  }
+
+  // Legacy data support: older/undamaged records from a prior version of this
+  // app may still carry plaintext name/type/size/etc. fields directly on the
+  // item instead of an encrypted metadata blob. This runs once per unlock,
+  // encrypts any such record's metadata, and strips the plaintext fields.
+  async migrateLegacyItemsIfNeeded(){
+    const items = await this.db.getAllItems();
+    const legacy = items.filter(i => !i.metaCipher && i.name !== undefined);
+    for (const item of legacy){
+      const meta = {
+        name: item.name, mime: item.mime, type: item.type, size: item.size,
+        favorite: !!item.favorite, createdAt: item.createdAt || Date.now(),
+        modifiedAt: item.createdAt || Date.now(), album: item.album || null, tags: item.tags || []
+      };
+      const { iv, cipher } = await CryptoService.encryptJson(this.activeKey, meta);
+      delete item.name; delete item.mime; delete item.type; delete item.size;
+      delete item.favorite; delete item.createdAt;
+      item.metaIv = iv; item.metaCipher = new Blob([cipher]);
+      await this.db.putItem(item);
+    }
+    return legacy.length;
+  }
+}
+
+/* =========================================================================
+   ThumbnailService — generates a small plaintext thumbnail once, at import
+   time, from the original file (transient, expected memory use). The
+   thumbnail is encrypted before it ever touches storage. Image thumbnails
+   are offloaded to a Worker when the browser supports OffscreenCanvas;
+   video frame capture always runs on the main thread because HTMLVideoElement
+   is not available inside a Worker in any current browser.
+   ========================================================================= */
+class ThumbnailService {
+  static MAX_DIM = 320;
+  static WORKER_TIMEOUT_MS = 4000;
+
+  constructor(){
+    this.worker = null;
+    this.pending = new Map();
+    this.nextId = 1;
+    this.workerSupported = typeof Worker !== 'undefined' && typeof OffscreenCanvas !== 'undefined';
+    if (this.workerSupported){
+      try {
+        const src = `
+          self.onmessage = async (e) => {
+            const { id, file, maxDim } = e.data;
+            try {
+              const bitmap = await createImageBitmap(file);
+              if (!bitmap.width || !bitmap.height) throw new Error('EMPTY_BITMAP');
+              const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+              const w = Math.max(1, Math.round(bitmap.width * scale));
+              const h = Math.max(1, Math.round(bitmap.height * scale));
+              const canvas = new OffscreenCanvas(w, h);
+              const ctx = canvas.getContext('2d');
+              if (!ctx) throw new Error('NO_CONTEXT');
+              ctx.drawImage(bitmap, 0, 0, w, h);
+              bitmap.close();
+              let blank = true;
+              try {
+                const sample = ctx.getImageData(0, 0, w, h).data;
+                for (let i = 0; i < sample.length; i += 4){
+                  if (sample[i] !== 0 || sample[i+1] !== 0 || sample[i+2] !== 0 || sample[i+3] !== 255){ blank = false; break; }
+                }
+              } catch (readErr) { blank = false; /* can't sample - don't discard a possibly-good thumbnail */ }
+              if (blank) throw new Error('BLANK_CANVAS');
+              const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.78 });
+              self.postMessage({ id, ok: true, blob });
+            } catch (err) {
+              self.postMessage({ id, ok: false, error: err.message });
+            }
+          };
+        `;
+        this.worker = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+        this.worker.onmessage = (e) => {
+          const { id, ok, blob, error } = e.data;
+          const cb = this.pending.get(id);
+          if (!cb) return;
+          this.pending.delete(id);
+          clearTimeout(cb.timeoutHandle);
+          ok ? cb.resolve(blob) : cb.reject(new Error(error));
+        };
+        // If the worker itself errors out (blocked by a sandboxed environment, etc.),
+        // reject any in-flight requests instead of leaving their promises hanging forever.
+        this.worker.onerror = () => {
+          dbg('thumbnail worker errored - disabling worker path for remaining thumbnails');
+          this.workerSupported = false;
+          this.pending.forEach(cb => { clearTimeout(cb.timeoutHandle); cb.reject(new Error('WORKER_ERROR')); });
+          this.pending.clear();
+        };
+      } catch (e) {
+        dbg('thumbnail worker could not be created:', e && e.message);
+        this.workerSupported = false;
+      }
+    }
+    this._logEnvironment();
+  }
+
+  _logEnvironment(){
+    if (!THUMB_DEBUG) return;
+    let canvasToBlobOk = false;
+    try { canvasToBlobOk = typeof document.createElement('canvas').toBlob === 'function'; } catch (e) {}
+    let rvfcOk = false;
+    try { rvfcOk = typeof document.createElement('video').requestVideoFrameCallback === 'function'; } catch (e) {}
+    dbg('environment check', {
+      worker: typeof Worker !== 'undefined',
+      offscreenCanvas: typeof OffscreenCanvas !== 'undefined',
+      createImageBitmap: typeof createImageBitmap !== 'undefined',
+      createObjectURL: typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function',
+      canvasToBlob: canvasToBlobOk,
+      requestVideoFrameCallback: rvfcOk
+    });
+  }
+
+  _viaWorker(file){
+    return new Promise((resolve, reject) => {
+      const id = this.nextId++;
+      const timeoutHandle = setTimeout(() => {
+        this.pending.delete(id);
+        reject(new Error('WORKER_TIMEOUT'));
+      }, ThumbnailService.WORKER_TIMEOUT_MS);
+      this.pending.set(id, { resolve, reject, timeoutHandle });
+      try {
+        this.worker.postMessage({ id, file, maxDim: ThumbnailService.MAX_DIM });
+      } catch (e) {
+        clearTimeout(timeoutHandle);
+        this.pending.delete(id);
+        reject(e);
+      }
+    });
+  }
+
+  // A canvas that never actually got drawn to (empty bitmap, null context, video
+  // frame not yet composited) still successfully encodes to a JPEG - it just comes
+  // out solid black, since JPEG has no alpha channel. This catches that case so we
+  // fall back instead of silently storing/using a black thumbnail.
+  _isCanvasBlank(ctx, w, h){
+    try {
+      const data = ctx.getImageData(0, 0, w, h).data;
+      for (let i = 0; i < data.length; i += 4){
+        if (data[i] !== 0 || data[i+1] !== 0 || data[i+2] !== 0 || data[i+3] !== 255) return false;
+      }
+      return true;
+    } catch (e) {
+      return false; // can't verify - assume fine rather than discarding a possibly-good thumbnail
+    }
+  }
+
+  async _fromImageBitmap(file){
+    const bitmap = await createImageBitmap(file);
+    if (!bitmap.width || !bitmap.height) throw new Error('EMPTY_BITMAP');
+    const scale = Math.min(1, ThumbnailService.MAX_DIM / Math.max(bitmap.width, bitmap.height));
+    const w = Math.max(1, Math.round(bitmap.width * scale));
+    const h = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('NO_CONTEXT');
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close();
+    if (this._isCanvasBlank(ctx, w, h)) throw new Error('BLANK_CANVAS');
+    return new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('TOBLOB_NULL')), 'image/jpeg', 0.78));
+  }
+
+  // Most broadly compatible path: a plain <img> element instead of createImageBitmap,
+  // for environments where createImageBitmap is missing, restricted, or unreliable.
+  async _fromHtmlImage(file){
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error('IMG_LOAD_FAILED'));
+        el.src = url;
+      });
+      if (!img.naturalWidth || !img.naturalHeight) throw new Error('EMPTY_IMAGE');
+      const scale = Math.min(1, ThumbnailService.MAX_DIM / Math.max(img.naturalWidth, img.naturalHeight));
+      const w = Math.max(1, Math.round(img.naturalWidth * scale));
+      const h = Math.max(1, Math.round(img.naturalHeight * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('NO_CONTEXT');
+      ctx.drawImage(img, 0, 0, w, h);
+      if (this._isCanvasBlank(ctx, w, h)) throw new Error('BLANK_CANVAS');
+      return await new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('TOBLOB_NULL')), 'image/jpeg', 0.78));
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  async fromImage(file){
+    if (this.workerSupported && this.worker){
+      try {
+        const blob = await this._viaWorker(file);
+        dbg('thumbnail via worker OK:', file.name, blob.size, 'bytes');
+        return blob;
+      } catch (e) {
+        dbg('worker thumbnail path failed, falling back to main thread:', e.message);
+      }
+    }
+    try {
+      const blob = await this._fromImageBitmap(file);
+      dbg('thumbnail via createImageBitmap OK:', file.name, blob.size, 'bytes');
+      return blob;
+    } catch (e) {
+      dbg('createImageBitmap path failed, falling back to HTMLImageElement:', e.message);
+    }
+    try {
+      const blob = await this._fromHtmlImage(file);
+      dbg('thumbnail via HTMLImageElement OK:', file.name, blob.size, 'bytes');
+      return blob;
+    } catch (e) {
+      dbg('HTMLImageElement fallback also failed:', e.message);
+      return null;
+    }
+  }
+
+  _waitForVideoFrame(video){
+    if (typeof video.requestVideoFrameCallback === 'function'){
+      return new Promise(resolve => video.requestVideoFrameCallback(() => resolve()));
+    }
+    // Without requestVideoFrameCallback, a double animation-frame wait reliably lands
+    // after the seeked frame has actually been composited (fixes black-frame captures).
+    return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  }
+
+  async _captureVideoFrame(file, seekTime){
+    const url = URL.createObjectURL(file);
+    try {
+      const video = document.createElement('video');
+      video.muted = true; video.playsInline = true; video.src = url;
+      await new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('VIDEO_LOAD_TIMEOUT')), 6000);
+        video.onloadeddata = () => {
+          try { video.currentTime = Math.min(seekTime, ((video.duration || 1) / 4) || seekTime); }
+          catch (e) { clearTimeout(timeout); reject(e); }
+        };
+        video.onseeked = () => { clearTimeout(timeout); resolve(); };
+        video.onerror = () => { clearTimeout(timeout); reject(new Error('VIDEO_ERROR')); };
+      });
+      await this._waitForVideoFrame(video);
+      const canvas = document.createElement('canvas');
+      const scale = Math.min(1, ThumbnailService.MAX_DIM / Math.max(video.videoWidth, video.videoHeight));
+      canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+      canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('NO_CONTEXT');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      if (this._isCanvasBlank(ctx, canvas.width, canvas.height)) throw new Error('BLANK_FRAME');
+      return await new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('TOBLOB_NULL')), 'image/jpeg', 0.78));
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  async fromVideo(file){
+    try {
+      const blob = await this._captureVideoFrame(file, 0.3);
+      dbg('video thumbnail OK at 0.3s:', file.name, blob.size, 'bytes');
+      return blob;
+    } catch (e) {
+      dbg('video thumbnail failed at 0.3s, retrying at 1.0s:', e.message);
+      try {
+        const blob = await this._captureVideoFrame(file, 1.0);
+        dbg('video thumbnail OK at 1.0s (retry):', file.name, blob.size, 'bytes');
+        return blob;
+      } catch (e2) {
+        dbg('video thumbnail retry also failed - no thumbnail stored, will use full-original fallback at display time:', e2.message);
+        return null;
+      }
+    }
+  }
+
+  async generate(file){
+    try {
+      const blob = file.type.startsWith('video') ? await this.fromVideo(file) : await this.fromImage(file);
+      if (!blob) dbg('no thumbnail generated for', file.name, '- grid will fall back to the decrypted original at display time');
+      return blob;
+    } catch (e) {
+      dbg('thumbnail generation threw unexpectedly for', file.name, ':', e.message);
+      return null;
+    }
+  }
+}
+
+/* =========================================================================
+   VaultManager — high-level operations over encrypted items. Holds a
+   session-scoped cache of raw records + a decrypted metadata index so
+   search/sort/filter never re-hit IndexedDB or re-decrypt on every keystroke.
+   Both caches are dropped by clearSessionCaches() on lock.
+   ========================================================================= */
+class VaultManager {
+  constructor(db, security){
+    this.db = db;
+    this.security = security;
+    this.rawItems = null;    // Array<rawRecord>, populated once per unlock
+    this.metaIndex = null;   // Map<id, decrypted meta>, populated once per unlock
+  }
+  get key(){ return this.security.activeKey; }
+
+  async loadSession(){
+    this.rawItems = await this.db.getAllItems();
+    this.metaIndex = new Map();
+    const BATCH = 200;
+    for (let i = 0; i < this.rawItems.length; i += BATCH){
+      const batch = this.rawItems.slice(i, i + BATCH);
+      await Promise.all(batch.map(raw => this._decryptMetaInto(raw)));
+    }
+  }
+  async _decryptMetaInto(raw){
+    try {
+      const buf = new Uint8Array(await raw.metaCipher.arrayBuffer());
+      const meta = await CryptoService.decryptJson(this.key, raw.metaIv, buf);
+      this.metaIndex.set(raw.id, { ...meta, id: raw.id, corrupted: false });
+    } catch (e) {
+      this.metaIndex.set(raw.id, {
+        id: raw.id, name: '(corrupted item)', type: 'image', size: 0,
+        favorite: false, createdAt: 0, corrupted: true
+      });
+    }
+  }
+  clearSessionCaches(){
+    this.rawItems = null;
+    this.metaIndex = null;
+  }
+
+  async importFiles(fileList, thumbService, onItem){
+    const results = [];
+    for (const file of Array.from(fileList)){
+      try {
+        const type = file.type.startsWith('video') ? 'video' : 'image';
+        const thumbPlain = await thumbService.generate(file);
+        let thumb = null;
+        if (thumbPlain){
+          const buf = await thumbPlain.arrayBuffer();
+          const { iv, cipher } = await CryptoService.encryptBuffer(this.key, buf);
+          thumb = { iv, blob: new Blob([cipher]) };
+        }
+        const chunks = await CryptoService.encryptFile(file, this.key);
+        const meta = {
+          name: file.name, mime: file.type || (type === 'video' ? 'video/mp4' : 'image/jpeg'),
+          type, size: file.size, favorite: false,
+          createdAt: Date.now(), modifiedAt: Date.now(), album: null, tags: []
+        };
+        const { iv: metaIv, cipher: metaCipher } = await CryptoService.encryptJson(this.key, meta);
+        const rawRecord = { metaIv, metaCipher: new Blob([metaCipher]), thumb, chunks };
+        const id = rawRecord.id = await this.db.addItem(rawRecord);
+        if (this.rawItems) this.rawItems.push(rawRecord);
+        if (this.metaIndex) this.metaIndex.set(id, { ...meta, id, corrupted: false });
+        results.push({ ok: true, id });
+      } catch (e) {
+        results.push({ ok: false, name: file.name, error: e instanceof StorageError ? humanizeError(e) : e.message });
+      }
+      if (onItem) onItem();
+    }
+    return results;
+  }
+
+  async deleteItems(ids){
+    for (const id of ids){
+      await this.db.deleteItem(id);
+      if (this.metaIndex) this.metaIndex.delete(id);
+      if (this.rawItems) this.rawItems = this.rawItems.filter(r => r.id !== id);
+    }
+  }
+
+  async toggleFavorite(id){
+    const raw = this.rawItems.find(r => r.id === id);
+    const meta = this.metaIndex.get(id);
+    if (!raw || !meta) return false;
+    meta.favorite = !meta.favorite;
+    meta.modifiedAt = Date.now();
+    const { name, mime, type, size, favorite, createdAt, modifiedAt, album, tags } = meta;
+    const { iv, cipher } = await CryptoService.encryptJson(this.key, { name, mime, type, size, favorite, createdAt, modifiedAt, album, tags });
+    raw.metaIv = iv; raw.metaCipher = new Blob([cipher]);
+    await this.db.putItem(raw);
+    return meta.favorite;
+  }
+
+  formatSize(bytes){
+    if (!bytes) return '0 b';
+    const units = ['b','kb','mb','gb'];
+    let u = 0, v = bytes;
+    while (v >= 1024 && u < units.length - 1){ v /= 1024; u++; }
+    return `${v.toFixed(u === 0 ? 0 : 1)} ${units[u]}`;
+  }
+
+  matchesSearch(meta, query){
+    if (!query) return true;
+    const q = query.toLowerCase();
+    const name = (meta.name || '').toLowerCase();
+    const ext = name.includes('.') ? name.split('.').pop() : '';
+    const dateStr = meta.createdAt ? new Date(meta.createdAt).toLocaleDateString().toLowerCase() : '';
+    const sizeStr = this.formatSize(meta.size).toLowerCase();
+    return name.includes(q) || ext.includes(q) || dateStr.includes(q) || sizeStr.includes(q) ||
+      (meta.type || '').includes(q) || (meta.favorite && 'favorite'.includes(q));
+  }
+
+  getFiltered({ search = '', sort = 'newest', favoritesOnly = false } = {}){
+    if (!this.metaIndex) return [];
+    let list = Array.from(this.metaIndex.values());
+    if (favoritesOnly) list = list.filter(m => m.favorite);
+    if (search.trim()) list = list.filter(m => this.matchesSearch(m, search.trim()));
+    switch (sort){
+      case 'oldest': list.sort((a, b) => a.createdAt - b.createdAt); break;
+      case 'images': list = list.filter(m => m.type === 'image').sort((a, b) => b.createdAt - a.createdAt); break;
+      case 'videos': list = list.filter(m => m.type === 'video').sort((a, b) => b.createdAt - a.createdAt); break;
+      default: list.sort((a, b) => b.createdAt - a.createdAt);
+    }
+    return list;
+  }
+
+  _rawFor(id){ return this.rawItems.find(r => r.id === id); }
+
+  static _blobToDataUrl(blob){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('BLOB_TO_DATAURL_FAILED'));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // Thumbnails are small, so a base64 data: URL is used instead of a blob: object URL -
+  // data: URLs need no createObjectURL/revoke lifecycle and are far less likely to be
+  // blocked by a host page's CSP (some sandboxed preview environments restrict blob:
+  // as an <img>/<video> source but allow data:).
+  async decryptThumbnail(id){
+    const raw = this._rawFor(id);
+    if (!raw || !raw.thumb) return null;
+    const blob = await CryptoService.decryptChunksToBlob([raw.thumb], this.key, 'image/jpeg');
+    return VaultManager._blobToDataUrl(blob);
+  }
+  async decryptFull(id){
+    const raw = this._rawFor(id);
+    const meta = this.metaIndex.get(id);
+    const blob = await CryptoService.decryptChunksToBlob(raw.chunks, this.key, meta.mime);
+    return URL.createObjectURL(blob);
+  }
+  // Last-resort variant of decryptFull for the grid's full-original fallback: only used
+  // for still images (never large videos, to avoid inflating memory via base64) when a
+  // blob: URL has already failed to render in the current environment.
+  async decryptFullAsDataUrl(id){
+    const raw = this._rawFor(id);
+    const meta = this.metaIndex.get(id);
+    const blob = await CryptoService.decryptChunksToBlob(raw.chunks, this.key, meta.mime);
+    return VaultManager._blobToDataUrl(blob);
+  }
+
+  async exportVault(onProgress){
+    const meta = await this.db.getMeta();
+    return VaultPackager.export(this.rawItems, meta, onProgress);
+  }
+
+  static async verifyImportPin(buf, pinChars){
+    const { reader, salt, iterations, verifyIv, verifyCipher } = VaultPackager.parseHeader(buf);
+    const pinStr = pinChars.join(''); pinChars.fill('0');
+    const key = await CryptoService.deriveKey(pinStr, salt, iterations);
+    try {
+      const plain = await CryptoService.decryptBuffer(key, verifyIv, verifyCipher);
+      if (new TextDecoder().decode(plain) !== 'VAULT_OK_v1') throw new Error('x');
+    } catch (e) { throw new VaultFormatError('WRONG_PIN'); }
+    return { key, reader, salt, iterations, verifyIv, verifyCipher };
+  }
+
+  async replaceAllWithImport(reader, salt, iterations, verifyIv, verifyCipher, onProgress){
+    const results = VaultPackager.readItems(reader, onProgress);
+    await this.db.clearAll();
+    await this.db.putMeta({ salt, iterations, verifyIv, verifyCipher, failedAttempts: 0, lockUntil: 0, dataFormatVersion: 2 });
+    let okCount = 0, failCount = 0;
+    for (const r of results){
+      if (!r.ok){ failCount++; continue; }
+      await this.db.addItem({ metaIv: r.metaIv, metaCipher: r.metaCipher, thumb: r.thumb, chunks: r.chunks });
+      okCount++;
+    }
+    this.clearSessionCaches();
+    return { okCount, failCount };
+  }
+
+  async deleteAllData(){
+    await this.db.clearAll();
+    this.clearSessionCaches();
+    this.security.lock();
+  }
+}
+
+/* =========================================================================
+   VirtualGrid — windowed rendering for the photo grid. Only the rows within
+   (viewport + a small buffer) are ever mounted as real DOM nodes; the rest of
+   the scroll height is represented by top/bottom spacer elements. This is
+   what makes browsing a 10,000+ item vault stay smooth, since the browser
+   never has to lay out more than a few dozen cells at once.
+   ========================================================================= */
+class VirtualGrid {
+  constructor({ scrollEl, gridEl, topSpacerEl, bottomSpacerEl, cols, gap, renderCell }){
+    this.scrollEl = scrollEl; this.gridEl = gridEl;
+    this.topSpacerEl = topSpacerEl; this.bottomSpacerEl = bottomSpacerEl;
+    this.cols = cols; this.gap = gap; this.renderCell = renderCell;
+    this.items = [];
+    this.cellSize = 100;
+    this.buffer = 2; // extra rows above/below viewport
+    this._lastStart = -1; this._lastEnd = -1;
+    this._raf = null;
+    this.scrollEl.addEventListener('scroll', () => this._scheduleUpdate(), { passive: true });
+    window.addEventListener('resize', () => { this._measure(); this._forceUpdate(); });
+  }
+  _measure(){
+    const width = this.gridEl.clientWidth || this.scrollEl.clientWidth;
+    this.cellSize = Math.max(60, (width - this.gap * (this.cols - 1)) / this.cols);
+  }
+  setItems(items){
+    this.items = items;
+    this._measure();
+    this._lastStart = -1; this._lastEnd = -1;
+    this._forceUpdate();
+  }
+  _scheduleUpdate(){
+    if (this._raf) return;
+    this._raf = requestAnimationFrame(() => { this._raf = null; this._update(); });
+  }
+  _forceUpdate(){ this._update(); }
+  _update(){
+    const rowHeight = this.cellSize + this.gap;
+    const totalRows = Math.ceil(this.items.length / this.cols);
+    const scrollTop = this.scrollEl.scrollTop;
+    const viewportH = this.scrollEl.clientHeight;
+    const firstVisibleRow = Math.max(0, Math.floor(scrollTop / rowHeight) - this.buffer);
+    const lastVisibleRow = Math.min(totalRows - 1, Math.ceil((scrollTop + viewportH) / rowHeight) + this.buffer);
+    const startIdx = firstVisibleRow * this.cols;
+    const endIdx = Math.min(this.items.length, (lastVisibleRow + 1) * this.cols);
+    if (startIdx === this._lastStart && endIdx === this._lastEnd) return;
+    this._lastStart = startIdx; this._lastEnd = endIdx;
+    this.topSpacerEl.style.height = (firstVisibleRow * rowHeight) + 'px';
+    this.bottomSpacerEl.style.height = Math.max(0, (totalRows - lastVisibleRow - 1) * rowHeight) + 'px';
+    this.gridEl.innerHTML = '';
+    for (let i = startIdx; i < endIdx; i++){
+      this.gridEl.appendChild(this.renderCell(this.items[i]));
+    }
+  }
+}
+
+/* =========================================================================
+   UIController — wires the DOM to everything above. The calculator section
+   is behaviorally unchanged from the original app.
+   ========================================================================= */
+const THEMES = [
+  { key: 'graphite', label: 'Dark Graphite', colors: ['#0F1113', '#2B2F34', '#4F7A6B'] },
+  { key: 'midnight', label: 'Midnight Blue', colors: ['#0A0E1A', '#232C45', '#4A6FA5'] },
+  { key: 'emerald', label: 'Emerald Green', colors: ['#0A130F', '#1C3327', '#4C8B63'] },
+  { key: 'purple', label: 'Royal Purple', colors: ['#120A1A', '#2E1F42', '#8B5FBF'] },
+  { key: 'sunset', label: 'Sunset Orange', colors: ['#160E0A', '#3A2419', '#C97A3B'] },
+  { key: 'neon', label: 'Cyber Neon', colors: ['#05060A', '#12161F', '#2FD7C4'] },
+  { key: 'minimal', label: 'Minimal White', colors: ['#EDEEF0', '#EEF0F2', '#3E6FBF'] },
+  { key: 'classic', label: 'Classic Calculator', colors: ['#D8D9DA', '#F2F2F2', '#9AA0A6'] }
+];
+const DEFAULT_THEME = 'graphite';
+
+class UIController {
+  constructor(){
+    this.db = new VaultDB();
+    this.security = null;
+    this.vaultMgr = null;
+    this.thumbService = new ThumbnailService();
+
+    this.pinBuffer = [];
+    this.gateMode = 'enter';
+    this._pendingFirstPin = null;
+    this._pendingOldKey = null;
+    this._pendingImport = null; // { buf, key, reader, salt, iterations, verifyIv, verifyCipher }
+    this.lockCountdownTimer = null;
+
+    this.currentList = [];
+    this.thumbUrlCache = new Map();
+    this.selectMode = false;
+    this.selectedIds = new Set();
+    this.viewerIndex = -1;
+    this.viewerUrl = null;
+    this.virtualGrid = null;
+
+    this.zoomScale = 1; this.panX = 0; this.panY = 0; this.rotateDeg = 0;
+    this.pointers = new Map();
+    this.pinchStartDist = 0; this.pinchStartScale = 1;
+    this.dragStartX = 0; this.dragStartY = 0; this.dragging = false;
+
+    this.settings = null; // app preferences (theme, etc.) - unencrypted, readable pre-unlock
+  }
+
+  async init(){
+    try {
+      await this.db.open();
+    } catch (e) {
+      console.error(e);
+      this.toast(humanizeError(e));
+      return;
+    }
+    this.security = new SecurityManager(this.db);
+    this.vaultMgr = new VaultManager(this.db, this.security);
+    this.security.onAutoLock = () => this.handleAutoLock();
+    this.security.startAutoLockWatch();
+
+    await this.loadSettings();
+    this.applyTheme(this.settings.theme);
+
+    this.bindCalculator();
+    this.bindGate();
+    this.bindVaultChrome();
+    this.bindViewer();
+    this.bindKeyboard();
+    this.bindSettings();
+  }
+
+  async loadSettings(){
+    let s = null;
+    try { s = await this.db.getSettings(); } catch (e) { console.error(e); }
+    this.settings = s || { theme: DEFAULT_THEME };
+  }
+  async saveSettings(){
+    try { await this.db.putSettings(this.settings); }
+    catch (e) { console.error(e); this.toast('Could not save that setting.'); }
+  }
+  applyTheme(themeKey){
+    const valid = THEMES.some(t => t.key === themeKey) ? themeKey : DEFAULT_THEME;
+    document.documentElement.className = document.documentElement.className
+      .replace(/\btheme-\S+\b/g, '').trim();
+    if (valid !== 'graphite') document.documentElement.classList.add('theme-' + valid);
+  }
+
+  bindSettings(){
+    this.settingsEl = document.getElementById('settingsScreen');
+    document.getElementById('menuSettings').addEventListener('click', () => {
+      document.getElementById('menuPanel').style.display = 'none';
+      this.openSettings();
+    });
+    document.getElementById('settingsBack').addEventListener('click', () => this.closeSettings());
+    this.renderThemeGrid();
+  }
+  openSettings(){ this.settingsEl.classList.add('open'); }
+  closeSettings(){ this.settingsEl.classList.remove('open'); }
+
+  renderThemeGrid(){
+    const grid = document.getElementById('themeGrid');
+    grid.innerHTML = '';
+    THEMES.forEach(theme => {
+      const btn = document.createElement('button');
+      btn.className = 'theme-swatch' + (this.settings.theme === theme.key ? ' active' : '');
+      btn.innerHTML = `<div class="preview">${theme.colors.map(c => `<span style="background:${c}"></span>`).join('')}</div><div class="label">${theme.label}</div>`;
+      btn.addEventListener('click', async () => {
+        this.settings.theme = theme.key;
+        this.applyTheme(theme.key);
+        await this.saveSettings();
+        grid.querySelectorAll('.theme-swatch').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  toast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(this._toastTimer);
+    this._toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  }
+  async safe(fn, friendlyMessage){
+    try { return await fn(); }
+    catch (e) {
+      console.error(e);
+      this.toast(friendlyMessage || humanizeError(e));
+      return null;
+    }
+  }
+
+  /* ---------------- Calculator (unchanged behavior) ---------------- */
+  bindCalculator(){
+    let current = "0", previous = null, operator = null, justEvaluated = false;
+    const mainLine = document.getElementById('mainLine');
+    const exprLine = document.getElementById('exprLine');
+    const render = () => {
+      mainLine.textContent = current === "" ? "0" : current;
+      exprLine.textContent = previous !== null && operator ? `${previous} ${operator}` : "\u00A0";
+    };
+    const inputNum = (d) => {
+      if (justEvaluated){ current = "0"; justEvaluated = false; }
+      if (d === "."){ if (current.includes(".")) return; current += "."; }
+      else current = (current === "0") ? d : current + d;
+      render();
+    };
+    const compute = () => {
+      if (operator === null || previous === null) return;
+      const a = parseFloat(previous), b = parseFloat(current);
+      let r;
+      switch (operator){
+        case "+": r = a + b; break;
+        case "−": r = a - b; break;
+        case "×": r = a * b; break;
+        case "÷": r = b === 0 ? NaN : a / b; break;
+        default: r = b;
+      }
+      current = Number.isFinite(r) ? String(Math.round(r * 1e10) / 1e10) : "Error";
+      previous = null; operator = null; justEvaluated = true; render();
+    };
+    const chooseOp = (op) => {
+      if (operator && previous !== null && !justEvaluated) compute();
+      previous = current; operator = op; current = "0"; justEvaluated = false; render();
+    };
+    const clearAll = () => { current = "0"; previous = null; operator = null; justEvaluated = false; render(); };
+    const toggleSign = () => { if (current !== "0") current = current.startsWith("-") ? current.slice(1) : "-" + current; render(); };
+    const percent = () => { current = String(parseFloat(current) / 100); render(); };
+
+    document.querySelectorAll('.key.num').forEach(btn => btn.addEventListener('click', () => inputNum(btn.dataset.num)));
+    document.querySelectorAll('.key.op').forEach(btn => btn.addEventListener('click', () => chooseOp(btn.dataset.op)));
+    document.querySelectorAll('.key.func').forEach(btn => btn.addEventListener('click', () => {
+      const fn = btn.dataset.fn;
+      if (fn === 'clear') clearAll();
+      if (fn === 'sign') toggleSign();
+      if (fn === 'percent') percent();
+    }));
+
+    const equalBtn = document.getElementById('equalBtn');
+    let pressTimer = null, longPressFired = false;
+    const startPress = () => { longPressFired = false; pressTimer = setTimeout(() => { longPressFired = true; this.openGate(); }, 550); };
+    const endPress = () => { clearTimeout(pressTimer); if (!longPressFired) compute(); };
+    equalBtn.addEventListener('mousedown', startPress);
+    equalBtn.addEventListener('touchstart', startPress, { passive: true });
+    equalBtn.addEventListener('mouseup', endPress);
+    equalBtn.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+    equalBtn.addEventListener('touchend', endPress);
+    render();
+  }
+
+  /* ---------------- Vault Gate ---------------- */
+  bindGate(){
+    this.gateEl = document.getElementById('gate');
+    this.gateTitle = document.getElementById('gateTitle');
+    this.gateSub = document.getElementById('gateSub');
+    this.gateError = document.getElementById('gateError');
+    this.dotsEl = document.getElementById('dots');
+
+    document.getElementById('gateKeys').addEventListener('click', (e) => {
+      const btn = e.target.closest('.gate-key');
+      if (!btn || btn.disabled) return;
+      const v = btn.dataset.g;
+      if (v === 'back'){ this.pinBuffer.pop(); this.updateDots(); return; }
+      if (v === 'ok') return;
+      if (this.pinBuffer.length >= 4) return;
+      this.pinBuffer.push(v);
+      this.updateDots();
+      if (this.pinBuffer.length === 4) setTimeout(() => this.handlePinComplete(), 120);
+    });
+    document.getElementById('gateCancel').addEventListener('click', () => this.closeGate());
+  }
+
+  async openGate(mode){
+    this.pinBuffer = [];
+    const lockState = await this.safe(() => this.security.getLockState()) || { locked: false };
+    if (lockState.locked && (!mode || mode === 'enter')){
+      this.gateMode = 'lockedOut';
+      this.showLockCountdown(lockState.remainingMs);
+      this.gateEl.classList.add('open');
+      return;
+    }
+    this.gateMode = mode || ((await this.safe(() => this.security.hasVaultSetup())) ? 'enter' : 'set');
+    this.updateGateText();
+    this.updateDots();
+    this.gateError.textContent = "\u00A0";
+    this.setGateKeysEnabled(true);
+    this.gateEl.classList.add('open');
+  }
+  closeGate(){ this.gateEl.classList.remove('open'); clearInterval(this.lockCountdownTimer); }
+  setGateKeysEnabled(enabled){ document.querySelectorAll('.gate-key').forEach(b => b.disabled = !enabled); }
+
+  showLockCountdown(remainingMs){
+    this.gateTitle.textContent = 'Too many attempts';
+    this.setGateKeysEnabled(false);
+    this.dotsEl.style.visibility = 'hidden';
+    const tick = () => {
+      this.gateSub.textContent = `Try again in ${Math.ceil(remainingMs / 1000)}s.`;
+      remainingMs -= 1000;
+      if (remainingMs <= 0){
+        clearInterval(this.lockCountdownTimer);
+        this.dotsEl.style.visibility = 'visible';
+        this.openGate('enter');
+      }
+    };
+    tick();
+    clearInterval(this.lockCountdownTimer);
+    this.lockCountdownTimer = setInterval(tick, 1000);
+  }
+
+  updateGateText(){
+    const map = {
+      set: ['Create a PIN', 'Choose a 4-digit PIN to protect your vault.'],
+      confirm: ['Confirm PIN', 'Enter the same PIN again.'],
+      enter: ['Enter PIN', 'This unlocks your private vault.'],
+      changeOld: ['Enter current PIN', 'Verify your current PIN to continue.'],
+      changeNew: ['New PIN', 'Choose a new 4-digit PIN.'],
+      changeConfirm: ['Confirm new PIN', 'Enter the new PIN again.'],
+      importPin: ['Enter vault PIN', 'Enter the PIN used to protect the imported file.']
+    };
+    const [title, sub] = map[this.gateMode] || map.enter;
+    this.gateTitle.textContent = title; this.gateSub.textContent = sub;
+  }
+  updateDots(){ this.dotsEl.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('filled', i < this.pinBuffer.length)); }
+  shakeGate(msg){
+    this.gateError.textContent = msg;
+    this.dotsEl.style.animation = 'none'; void this.dotsEl.offsetWidth; this.dotsEl.style.animation = 'shake 0.4s';
+  }
+
+  async handlePinComplete(){
+    const pin = this.pinBuffer.slice();
+    this.pinBuffer = [];
+
+    if (this.gateMode === 'set'){
+      this._pendingFirstPin = pin; this.gateMode = 'confirm'; this.updateGateText(); this.updateDots(); return;
+    }
+    if (this.gateMode === 'confirm'){
+      if (pin.join('') === this._pendingFirstPin.join('')){
+        await this.safe(() => this.security.setupPin(pin));
+        this._pendingFirstPin = null;
+        this.closeGate(); await this.enterVault();
+      } else {
+        this.shakeGate("PINs didn't match. Start again.");
+        this._pendingFirstPin = null; this.gateMode = 'set';
+        setTimeout(() => { this.updateGateText(); this.updateDots(); }, 350);
+      }
+      return;
+    }
+    if (this.gateMode === 'enter'){
+      const ok = await this.safe(() => this.security.verifyPin(pin));
+      if (ok){ this.closeGate(); await this.enterVault(); }
+      else {
+        const state = await this.safe(() => this.security.recordFailedAttempt()) || { locked: false };
+        if (state.locked){ this.showLockCountdown(state.remainingMs); this.gateMode = 'lockedOut'; }
+        else { this.shakeGate('Wrong PIN. Try again.'); setTimeout(() => this.updateDots(), 350); }
+      }
+      return;
+    }
+    if (this.gateMode === 'changeOld'){
+      try {
+        this._pendingOldKey = await this.security.verifyOldPin(pin);
+        this.gateMode = 'changeNew'; this.updateGateText(); this.updateDots();
+      } catch (e) {
+        this.shakeGate(e.message || 'Incorrect PIN.');
+        setTimeout(() => this.updateDots(), 350);
+      }
+      return;
+    }
+    if (this.gateMode === 'changeNew'){
+      this._pendingFirstPin = pin; this.gateMode = 'changeConfirm'; this.updateGateText(); this.updateDots(); return;
+    }
+    if (this.gateMode === 'changeConfirm'){
+      if (pin.join('') === this._pendingFirstPin.join('')){
+        this.closeGate();
+        await this.runChangePin(this._pendingOldKey, pin);
+        this._pendingOldKey = null; this._pendingFirstPin = null;
+      } else {
+        this.shakeGate("PINs didn't match. Start again.");
+        this.gateMode = 'changeNew'; this._pendingFirstPin = null;
+        setTimeout(() => { this.updateGateText(); this.updateDots(); }, 350);
+      }
+      return;
+    }
+    if (this.gateMode === 'importPin'){
+      try {
+        const result = await VaultManager.verifyImportPin(this._pendingImport.buf, pin);
+        this.closeGate();
+        await this.runImportReplace(result);
+      } catch (e) {
+        this.shakeGate(humanizeError(e));
+        setTimeout(() => this.updateDots(), 350);
+      }
+      return;
+    }
+  }
+
+  /* ---------------- Change PIN ---------------- */
+  async runChangePin(oldKey, newPinChars){
+    this.showProgressModal('Changing PIN', 'Re-encrypting your files with the new PIN…');
+    await this.safe(async () => {
+      const newSalt = CryptoService.randomBytes(16);
+      const newKey = await CryptoService.deriveKey(newPinChars.join(''), newSalt, CryptoService.PBKDF2_ITERATIONS);
+      newPinChars.fill('0');
+      const items = this.vaultMgr.rawItems || await this.db.getAllItems();
+      let done = 0;
+      for (const item of items){
+        const newChunks = [];
+        for (const c of item.chunks){
+          const cipherBuf = await c.blob.arrayBuffer();
+          const plain = await CryptoService.decryptBuffer(oldKey, c.iv, new Uint8Array(cipherBuf));
+          const { iv, cipher } = await CryptoService.encryptBuffer(newKey, plain);
+          newChunks.push({ iv, blob: new Blob([cipher]) });
+        }
+        let newThumb = null;
+        if (item.thumb){
+          const tBuf = await item.thumb.blob.arrayBuffer();
+          const plain = await CryptoService.decryptBuffer(oldKey, item.thumb.iv, new Uint8Array(tBuf));
+          const { iv, cipher } = await CryptoService.encryptBuffer(newKey, plain);
+          newThumb = { iv, blob: new Blob([cipher]) };
+        }
+        const metaBuf = new Uint8Array(await item.metaCipher.arrayBuffer());
+        const metaPlain = await CryptoService.decryptBuffer(oldKey, item.metaIv, metaBuf);
+        const { iv: newMetaIv, cipher: newMetaCipher } = await CryptoService.encryptBuffer(newKey, metaPlain);
+
+        item.chunks = newChunks; item.thumb = newThumb;
+        item.metaIv = newMetaIv; item.metaCipher = new Blob([newMetaCipher]);
+        await this.db.putItem(item);
+        done++;
+        this.updateProgressModal(`Re-encrypting file ${done} of ${items.length}…`);
+      }
+      const { iv, cipher } = await CryptoService.encryptBuffer(newKey, new TextEncoder().encode('VAULT_OK_v1'));
+      await this.db.putMeta({ salt: newSalt, verifyIv: iv, verifyCipher: cipher, iterations: CryptoService.PBKDF2_ITERATIONS, failedAttempts: 0, lockUntil: 0, dataFormatVersion: 2 });
+      this.security.activeKey = newKey;
+      this.clearThumbCache();
+      await this.vaultMgr.loadSession();
+      this.hideProgressModal();
+      this.toast('PIN changed successfully.');
+      await this.renderGrid();
+    }, 'Could not change PIN.');
+    this.hideProgressModal();
+  }
+
+  /* ---------------- Export / Import ---------------- */
+  async runExport(){
+    this.showProgressModal('Exporting vault', 'Packaging your encrypted files…');
+    await this.safe(async () => {
+      const blob = await this.vaultMgr.exportVault((done, total) => this.updateProgressModal(`Packaging file ${done} of ${total}…`));
+      this.hideProgressModal();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `vault-export-${Date.now()}.vault`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      this.toast('Vault exported.');
+    }, 'Export failed.');
+    this.hideProgressModal();
+  }
+
+  async runImportReplace(result){
+    this.showProgressModal('Importing vault', 'Restoring encrypted files…');
+    await this.safe(async () => {
+      const { okCount, failCount } = await this.vaultMgr.replaceAllWithImport(
+        result.reader, result.salt, result.iterations, result.verifyIv, result.verifyCipher,
+        (done, total) => this.updateProgressModal(`Restoring file ${done} of ${total}…`)
+      );
+      this.hideProgressModal();
+      this.security.lock();
+      this.closeVault();
+      this.toast(failCount > 0
+        ? `Imported ${okCount} file(s). ${failCount} were skipped (corrupted). Vault is locked — enter the PIN to view it.`
+        : `Imported ${okCount} file(s). Vault is locked — enter the PIN to view it.`);
+    }, 'Import failed.');
+    this.hideProgressModal();
+  }
+
+  /* ---------------- Generic progress / confirm modals ---------------- */
+  showProgressModal(title, sub){
+    this.hideProgressModal();
+    const div = document.createElement('div');
+    div.className = 'modal'; div.id = 'progressModal';
+    div.innerHTML = `<div class="modal-card"><div class="spinner"></div><h3>${title}</h3><p id="progressSub">${sub}</p></div>`;
+    document.body.appendChild(div);
+  }
+  updateProgressModal(sub){ const el = document.getElementById('progressSub'); if (el) el.textContent = sub; }
+  hideProgressModal(){ const el = document.getElementById('progressModal'); if (el) el.remove(); }
+  confirmModal(title, sub, confirmLabel, danger = true){
+    return new Promise(resolve => {
+      const div = document.createElement('div');
+      div.className = 'modal';
+      div.innerHTML = `<div class="modal-card"><h3>${title}</h3><p>${sub}</p>
+        <div class="modal-actions"><button class="cancel">Cancel</button>
+        <button class="confirm ${danger ? '' : 'safe'}">${confirmLabel}</button></div></div>`;
+      document.body.appendChild(div);
+      div.querySelector('.cancel').onclick = () => { div.remove(); resolve(false); };
+      div.querySelector('.confirm').onclick = () => { div.remove(); resolve(true); };
+    });
+  }
+
+  /* ---------------- Vault chrome ---------------- */
+  bindVaultChrome(){
+    this.vaultEl = document.getElementById('vault');
+    this.gridEl = document.getElementById('grid');
+    this.emptyEl = document.getElementById('emptyState');
+    this.fileInput = document.getElementById('fileInput');
+    this.importInput = document.getElementById('importInput');
+
+    this.virtualGrid = new VirtualGrid({
+      scrollEl: document.getElementById('vaultBody'),
+      gridEl: this.gridEl,
+      topSpacerEl: document.getElementById('topSpacer'),
+      bottomSpacerEl: document.getElementById('bottomSpacer'),
+      cols: 3, gap: 10,
+      renderCell: (item) => this.buildCell(item)
+    });
+
+    document.getElementById('lockBtn').addEventListener('click', () => this.closeVault());
+    document.getElementById('addBtn').addEventListener('click', () => { this.security.expectingBlur = true; this.fileInput.click(); });
+
+    this.fileInput.addEventListener('change', async (e) => {
+      this.security.expectingBlur = false;
+      const files = e.target.files;
+      if (files && files.length){
+        this.showProgressModal('Adding files', `Encrypting file 1 of ${files.length}…`);
+        let count = 0;
+        const results = await this.safe(() => this.vaultMgr.importFiles(files, this.thumbService, () => {
+          count++; this.updateProgressModal(`Encrypting file ${count} of ${files.length}…`);
+        }), 'Import failed.') || [];
+        this.hideProgressModal();
+        const failed = results.filter(r => !r.ok);
+        if (failed.length) this.toast(`${failed.length} file(s) failed to import.`);
+        await this.renderGrid();
+      }
+      this.fileInput.value = '';
+    });
+
+    const menuBtn = document.getElementById('menuBtn');
+    const menuPanel = document.getElementById('menuPanel');
+    menuBtn.addEventListener('click', () => { menuPanel.style.display = menuPanel.style.display === 'none' ? 'block' : 'none'; });
+    document.addEventListener('click', (e) => { if (!menuPanel.contains(e.target) && e.target !== menuBtn) menuPanel.style.display = 'none'; });
+    document.getElementById('menuChangePin').addEventListener('click', () => { menuPanel.style.display = 'none'; this.openGate('changeOld'); });
+    document.getElementById('menuExport').addEventListener('click', () => { menuPanel.style.display = 'none'; this.runExport(); });
+    document.getElementById('menuImport').addEventListener('click', () => {
+      menuPanel.style.display = 'none'; this.security.expectingBlur = true; this.importInput.click();
+    });
+    this.importInput.addEventListener('change', async (e) => {
+      this.security.expectingBlur = false;
+      const file = e.target.files[0];
+      this.importInput.value = '';
+      if (!file) return;
+      await this.safe(async () => {
+        const buf = new Uint8Array(await file.arrayBuffer());
+        VaultPackager.parseHeader(buf); // throws early on bad magic / unsupported version / truncated header
+        const proceed = await this.confirmModal('Import vault?', 'This will replace everything currently in this vault on this device. This cannot be undone.', 'Import', true);
+        if (!proceed) return;
+        this._pendingImport = { buf };
+        this.openGate('importPin');
+      }, 'Could not read that file.');
+    });
+    document.getElementById('menuDeleteAll').addEventListener('click', async () => {
+      menuPanel.style.display = 'none';
+      const proceed = await this.confirmModal('Delete all vault data?', 'Every photo, video, and your PIN will be permanently deleted from this device.', 'Delete everything', true);
+      if (!proceed) return;
+      await this.safe(async () => {
+        await this.vaultMgr.deleteAllData();
+        this.clearThumbCache();
+        this.closeVault();
+        this.toast('All vault data deleted.');
+      }, 'Could not delete vault data.');
+    });
+
+    document.getElementById('searchInput').addEventListener('input', () => this.renderGrid());
+    document.getElementById('sortSelect').addEventListener('change', () => this.renderGrid());
+    document.getElementById('favFilterBtn').addEventListener('click', (e) => { e.target.classList.toggle('active'); this.renderGrid(); });
+
+    const selectModeBtn = document.getElementById('selectModeBtn');
+    const selectBar = document.getElementById('selectBar');
+    selectModeBtn.addEventListener('click', () => {
+      this.selectMode = !this.selectMode;
+      this.selectedIds.clear();
+      selectModeBtn.classList.toggle('active', this.selectMode);
+      selectBar.style.display = this.selectMode ? 'flex' : 'none';
+      this.updateSelectCount();
+      this.renderGrid();
+    });
+    document.getElementById('cancelSelectBtn').addEventListener('click', () => selectModeBtn.click());
+    document.getElementById('deleteSelectedBtn').addEventListener('click', async () => {
+      if (this.selectedIds.size === 0) return;
+      const proceed = await this.confirmModal('Delete selected files?', `${this.selectedIds.size} file(s) will be permanently deleted.`, 'Delete', true);
+      if (!proceed) return;
+      await this.safe(async () => {
+        const ids = Array.from(this.selectedIds);
+        await this.vaultMgr.deleteItems(ids);
+        ids.forEach(id => this.releaseThumb(id));
+        this.selectedIds.clear();
+        this.updateSelectCount();
+        await this.renderGrid();
+      }, 'Could not delete the selected files.');
+    });
+  }
+
+  updateSelectCount(){ document.getElementById('selectCount').textContent = `${this.selectedIds.size} selected`; }
+
+  async enterVault(){
+    await this.safe(async () => {
+      await this.vaultMgr.loadSession();
+      const migrated = await this.security.migrateLegacyItemsIfNeeded();
+      if (migrated > 0) await this.vaultMgr.loadSession(); // reload after migration touched records
+    }, 'Could not load the vault.');
+    this.vaultEl.classList.add('open');
+    await this.renderGrid();
+  }
+  closeVault(){
+    this.vaultEl.classList.remove('open');
+    this.security.lock();
+    this.clearThumbCache();
+    if (this.vaultMgr) this.vaultMgr.clearSessionCaches();
+  }
+  handleAutoLock(){
+    if (this.vaultEl.classList.contains('open')) this.closeVault();
+    this.closeViewer();
+  }
+
+  clearThumbCache(){
+    this.thumbUrlCache.forEach(url => URL.revokeObjectURL(url));
+    this.thumbUrlCache.clear();
+  }
+  releaseThumb(id){
+    const url = this.thumbUrlCache.get(id);
+    if (url){ URL.revokeObjectURL(url); this.thumbUrlCache.delete(id); }
+    const fullUrl = this.thumbUrlCache.get('full:' + id);
+    if (fullUrl){ URL.revokeObjectURL(fullUrl); this.thumbUrlCache.delete('full:' + id); }
+  }
+
+  /* ---------------- Grid rendering (virtualized) ---------------- */
+  async renderGrid(){
+    const search = document.getElementById('searchInput').value;
+    const sort = document.getElementById('sortSelect').value;
+    const favoritesOnly = document.getElementById('favFilterBtn').classList.contains('active');
+    this.currentList = this.vaultMgr.getFiltered({ search, sort, favoritesOnly });
+
+    if (this.currentList.length === 0){
+      this.emptyEl.style.display = 'flex';
+      this.gridEl.style.display = 'none';
+      document.getElementById('topSpacer').style.height = '0px';
+      document.getElementById('bottomSpacer').style.height = '0px';
+      this.gridEl.innerHTML = '';
+      return;
+    }
+    this.emptyEl.style.display = 'none';
+    this.gridEl.style.display = 'grid';
+    this.virtualGrid.setItems(this.currentList);
+  }
+
+  buildCell(item){
+    const cell = document.createElement('div');
+    cell.className = 'cell' + (this.selectMode ? ' selecting' : '') + (this.selectedIds.has(item.id) ? ' selected' : '') + (item.corrupted ? ' corrupted' : '');
+    cell.dataset.id = item.id;
+
+    const ph = document.createElement('div');
+    ph.className = 'ph'; ph.textContent = item.corrupted ? '⚠' : (item.type === 'video' ? '🎬' : '🖼');
+    cell.appendChild(ph);
+
+    const kind = document.createElement('div');
+    kind.className = 'kind'; kind.textContent = item.corrupted ? 'Damaged' : (item.type === 'video' ? 'Video' : 'Photo');
+    cell.appendChild(kind);
+
+    if (!item.corrupted){
+      const star = document.createElement('button');
+      star.className = 'star' + (item.favorite ? ' on' : '');
+      star.textContent = item.favorite ? '★' : '☆';
+      star.setAttribute('aria-label', 'Toggle favorite');
+      star.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        this.safe(async () => {
+          const fav = await this.vaultMgr.toggleFavorite(item.id);
+          star.classList.toggle('on', fav); star.textContent = fav ? '★' : '☆';
+        }, 'Could not update favorite.');
+      });
+      cell.appendChild(star);
+    }
+
+    const del = document.createElement('button');
+    del.className = 'del'; del.textContent = '✕'; del.setAttribute('aria-label', 'Delete');
+    del.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      this.safe(async () => {
+        await this.vaultMgr.deleteItems([item.id]);
+        this.releaseThumb(item.id);
+        await this.renderGrid();
+      }, 'Could not delete this file.');
+    });
+    cell.appendChild(del);
+
+    const check = document.createElement('div');
+    check.className = 'check'; check.textContent = '✓';
+    cell.appendChild(check);
+
+    cell.addEventListener('click', () => {
+      if (this.selectMode){
+        if (this.selectedIds.has(item.id)) this.selectedIds.delete(item.id); else this.selectedIds.add(item.id);
+        cell.classList.toggle('selected');
+        this.updateSelectCount();
+      } else if (!item.corrupted){
+        this.openViewer(item.id);
+      }
+    });
+
+    if (!item.corrupted) this.loadCellThumb(cell, item.id);
+    return cell;
+  }
+
+  async loadCellThumb(cellEl, id){
+    const cachedThumb = this.thumbUrlCache.get(id);
+    if (cachedThumb){ this.paintThumb(cellEl, cachedThumb); return; }
+    const cachedFull = this.thumbUrlCache.get('full:' + id);
+    if (cachedFull){ this.paintFullFallback(cellEl, cachedFull, id); return; }
+
+    const raw = this.vaultMgr._rawFor(id);
+    if (raw && raw.thumb){
+      try {
+        const url = await this.vaultMgr.decryptThumbnail(id);
+        if (url){
+          if (!document.body.contains(cellEl) || Number(cellEl.dataset.id) !== id){ URL.revokeObjectURL(url); return; }
+          this.thumbUrlCache.set(id, url);
+          this.paintThumb(cellEl, url);
+          return;
+        }
+        dbg('thumbnail decrypt returned no url for item', id);
+      } catch (e) {
+        dbg('thumbnail decrypt failed for item', id, ':', e.message);
+      }
+    } else {
+      dbg('no stored thumbnail for item', id, '- using full-original fallback');
+    }
+    // No usable pre-made thumbnail (missing, corrupted, or failed to decrypt) -
+    // fall back to decrypting the original file directly rather than showing nothing useful.
+    await this.renderFullFallback(cellEl, id);
+  }
+
+  paintThumb(cellEl, url){
+    if (cellEl.querySelector('.thumb')) return;
+    const img = document.createElement('img');
+    img.className = 'thumb'; img.loading = 'lazy';
+    img.onerror = () => {
+      dbg('thumbnail <img> failed to render for item', Number(cellEl.dataset.id), '- falling back to original');
+      img.remove();
+      this.renderFullFallback(cellEl, Number(cellEl.dataset.id));
+    };
+    img.src = url;
+    cellEl.insertBefore(img, cellEl.firstChild);
+    const ph = cellEl.querySelector('.ph');
+    if (ph) ph.remove();
+  }
+
+  // Last-resort display path: no usable pre-generated thumbnail exists for this item
+  // (generation failed, or the stored thumbnail itself won't render), so decrypt the
+  // original photo/video and display that directly instead of a black or blank card.
+  // Cached separately from real thumbnails so repeated scrolling doesn't re-decrypt.
+  async renderFullFallback(cellEl, id){
+    const cachedFull = this.thumbUrlCache.get('full:' + id);
+    if (cachedFull){ this.paintFullFallback(cellEl, cachedFull, id); return; }
+    try {
+      const url = await this.vaultMgr.decryptFull(id);
+      if (!document.body.contains(cellEl) || Number(cellEl.dataset.id) !== id){ URL.revokeObjectURL(url); return; }
+      this.thumbUrlCache.set('full:' + id, url);
+      this.paintFullFallback(cellEl, url, id);
+      dbg('fallback: rendered original file for item', id);
+    } catch (e) {
+      dbg('fallback: decrypting the original also failed for item', id, ':', e && e.message);
+      // Nothing left to try - the placeholder glyph (.ph) stays visible, never a black card.
+    }
+  }
+  paintFullFallback(cellEl, url, id){
+    if (cellEl.querySelector('.thumb')) return;
+    const meta = this.vaultMgr.metaIndex ? this.vaultMgr.metaIndex.get(id) : null;
+    const isVideo = !!(meta && meta.type === 'video');
+    const el = document.createElement(isVideo ? 'video' : 'img');
+    el.className = 'thumb';
+    if (isVideo){ el.muted = true; el.playsInline = true; el.preload = 'metadata'; }
+    else {
+      el.loading = 'lazy';
+      // If even the blob: URL fails to render here, this environment likely restricts
+      // blob: as a media source - retry once as a base64 data: URL before giving up.
+      el.onerror = () => this._retryFullFallbackAsDataUrl(cellEl, id, el);
+    }
+    el.src = url;
+    cellEl.insertBefore(el, cellEl.firstChild);
+    const ph = cellEl.querySelector('.ph');
+    if (ph) ph.remove();
+  }
+
+  async _retryFullFallbackAsDataUrl(cellEl, id, oldEl){
+    if (oldEl.dataset.dataUrlTried) return; // avoid a retry loop if the data URL also errors
+    oldEl.dataset.dataUrlTried = '1';
+    dbg('full-fallback blob URL failed to render for item', id, '- retrying as a data URL');
+    try {
+      const dataUrl = await this.vaultMgr.decryptFullAsDataUrl(id);
+      if (!document.body.contains(cellEl) || Number(cellEl.dataset.id) !== id) return;
+      oldEl.src = dataUrl;
+      dbg('full-fallback data URL succeeded for item', id);
+    } catch (e) {
+      dbg('full-fallback data URL also failed for item', id, ':', e && e.message);
+      if (document.body.contains(oldEl)) oldEl.remove();
+      if (!cellEl.querySelector('.ph') && !cellEl.querySelector('.thumb')){
+        const ph = document.createElement('div');
+        ph.className = 'ph'; ph.textContent = '🖼';
+        cellEl.insertBefore(ph, cellEl.firstChild);
+      }
+    }
+  }
+
+  /* ---------------- Fullscreen viewer ---------------- */
+  bindViewer(){
+    this.viewerEl = document.getElementById('viewer');
+    this.viewerWrap = document.getElementById('viewerMediaWrap');
+    document.getElementById('viewerClose').addEventListener('click', () => this.closeViewer());
+    document.getElementById('viewerPrev').addEventListener('click', () => this.navViewer(-1));
+    document.getElementById('viewerNext').addEventListener('click', () => this.navViewer(1));
+    document.getElementById('viewerRotate').addEventListener('click', () => {
+      this.rotateDeg = (this.rotateDeg + 90) % 360;
+      this.applyZoom();
+    });
+    document.getElementById('viewerFullscreen').addEventListener('click', () => {
+      const el = this.viewerEl;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+      if (req) req.call(el).catch(() => this.toast('Fullscreen is not available.'));
+    });
+    document.getElementById('viewerDelete').addEventListener('click', async () => {
+      const item = this.currentList[this.viewerIndex];
+      if (!item) return;
+      const proceed = await this.confirmModal('Delete this file?', 'This cannot be undone.', 'Delete', true);
+      if (!proceed) return;
+      await this.safe(async () => {
+        await this.vaultMgr.deleteItems([item.id]);
+        this.releaseThumb(item.id);
+        await this.renderGrid();
+        if (this.currentList.length === 0){ this.closeViewer(); return; }
+        this.viewerIndex = Math.min(this.viewerIndex, this.currentList.length - 1);
+        this.showViewerItem(this.viewerIndex);
+      }, 'Could not delete this file.');
+    });
+    document.getElementById('viewerFav').addEventListener('click', async (e) => {
+      const item = this.currentList[this.viewerIndex];
+      if (!item) return;
+      await this.safe(async () => {
+        const fav = await this.vaultMgr.toggleFavorite(item.id);
+        item.favorite = fav; e.target.textContent = fav ? '★' : '☆';
+      }, 'Could not update favorite.');
+    });
+
+    this.viewerWrap.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    this.viewerWrap.addEventListener('pointermove', (e) => this.onPointerMove(e));
+    this.viewerWrap.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    this.viewerWrap.addEventListener('pointercancel', (e) => this.onPointerUp(e));
+    this.viewerWrap.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      this.zoomScale = Math.min(4, Math.max(1, this.zoomScale - e.deltaY * 0.0015));
+      this.applyZoom();
+    }, { passive: false });
+    this.viewerWrap.addEventListener('dblclick', () => {
+      this.zoomScale = this.zoomScale > 1 ? 1 : 2.5;
+      this.panX = 0; this.panY = 0;
+      this.applyZoom();
+    });
+  }
+
+  bindKeyboard(){
+    document.addEventListener('keydown', (e) => {
+      if (this.viewerEl.classList.contains('open')){
+        if (e.key === 'Escape') this.closeViewer();
+        if (e.key === 'ArrowLeft') this.navViewer(-1);
+        if (e.key === 'ArrowRight') this.navViewer(1);
+        if (e.key === '+' || e.key === '='){ this.zoomScale = Math.min(4, this.zoomScale + 0.25); this.applyZoom(); }
+        if (e.key === '-'){ this.zoomScale = Math.max(1, this.zoomScale - 0.25); this.applyZoom(); }
+      } else if (this.gateEl.classList.contains('open')){
+        if (e.key === 'Escape') this.closeGate();
+      }
+    });
+  }
+
+  onPointerDown(e){
+    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this.pointers.size === 1){
+      this.dragging = true; this.dragStartX = e.clientX; this.dragStartY = e.clientY;
+      this.dragStartPanX = this.panX; this.dragStartPanY = this.panY;
+    } else if (this.pointers.size === 2){
+      const pts = Array.from(this.pointers.values());
+      this.pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      this.pinchStartScale = this.zoomScale;
+    }
+  }
+  onPointerMove(e){
+    if (!this.pointers.has(e.pointerId)) return;
+    this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this.pointers.size === 2){
+      const pts = Array.from(this.pointers.values());
+      const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      this.zoomScale = Math.min(4, Math.max(1, this.pinchStartScale * (dist / (this.pinchStartDist || 1))));
+      this.applyZoom();
+    } else if (this.pointers.size === 1 && this.dragging){
+      const dx = e.clientX - this.dragStartX, dy = e.clientY - this.dragStartY;
+      if (this.zoomScale > 1.02){ this.panX = this.dragStartPanX + dx; this.panY = this.dragStartPanY + dy; this.applyZoom(); }
+    }
+  }
+  onPointerUp(e){
+    if (this.pointers.size === 1 && this.zoomScale <= 1.02 && this.dragging){
+      const dx = e.clientX - this.dragStartX;
+      if (Math.abs(dx) > 60) this.navViewer(dx > 0 ? -1 : 1);
+    }
+    this.pointers.delete(e.pointerId);
+    this.dragging = this.pointers.size > 0;
+  }
+  applyZoom(){
+    const media = this.viewerWrap.querySelector('.viewer-media');
+    if (!media) return;
+    media.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoomScale}) rotate(${this.rotateDeg}deg)`;
+  }
+
+  async openViewer(id){
+    const idx = this.currentList.findIndex(i => i.id === id);
+    if (idx === -1) return;
+    this.viewerIndex = idx;
+    this.viewerEl.classList.add('open');
+    await this.showViewerItem(idx);
+  }
+  async showViewerItem(idx){
+    this.releaseViewerUrl();
+    this.zoomScale = 1; this.panX = 0; this.panY = 0; this.rotateDeg = 0;
+    const item = this.currentList[idx];
+    this.viewerWrap.innerHTML = '<div class="viewer-loading">Decrypting…</div>';
+    document.getElementById('viewerFav').textContent = item.favorite ? '★' : '☆';
+    let rendered = false;
+    await this.safe(async () => {
+      if (item.type === 'video'){
+        const url = await this.vaultMgr.decryptFull(item.id); // blob: URL - better for large files
+        this.viewerUrl = url;
+        this.viewerWrap.innerHTML = '';
+        const media = document.createElement('video');
+        media.className = 'viewer-media'; media.controls = true; media.autoplay = true;
+        media.onerror = () => {
+          dbg('viewer blob URL failed for video item', item.id, '- retrying as a data URL');
+          this._retryViewerVideoAsDataUrl(item.id, media);
+        };
+        media.src = url;
+        this.viewerWrap.appendChild(media);
+      } else {
+        // Images: decrypt straight to a base64 data: URL - the same fix already applied
+        // to thumbnails, since this environment appears to block blob: URLs as media sources.
+        const url = await this.vaultMgr.decryptFullAsDataUrl(item.id);
+        this.viewerWrap.innerHTML = '';
+        const media = document.createElement('img');
+        media.className = 'viewer-media';
+        media.src = url;
+        this.viewerWrap.appendChild(media);
+      }
+      rendered = true;
+    }, 'Could not decrypt this file.');
+    if (!rendered) this.viewerWrap.innerHTML = '<div class="viewer-loading">Could not decrypt this file.</div>';
+  }
+  async _retryViewerVideoAsDataUrl(id, videoEl){
+    try {
+      const dataUrl = await this.vaultMgr.decryptFullAsDataUrl(id);
+      videoEl.src = dataUrl;
+      dbg('viewer data URL succeeded for video item', id);
+    } catch (e) {
+      dbg('viewer data URL also failed for video item', id, ':', e && e.message);
+      this.viewerWrap.innerHTML = '<div class="viewer-loading">Could not display this video in this environment.</div>';
+    }
+  }
+  navViewer(dir){
+    if (this.currentList.length === 0) return;
+    this.viewerIndex = (this.viewerIndex + dir + this.currentList.length) % this.currentList.length;
+    this.showViewerItem(this.viewerIndex);
+  }
+  releaseViewerUrl(){
+    if (this.viewerUrl){ URL.revokeObjectURL(this.viewerUrl); this.viewerUrl = null; }
+  }
+  closeViewer(){
+    if (document.fullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen || function(){}).call(document);
+    this.viewerEl.classList.remove('open');
+    this.releaseViewerUrl();
+    this.viewerWrap.innerHTML = '';
+    this.viewerIndex = -1;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const ui = new UIController();
+  ui.init().catch(e => console.error('Vault init failed', e));
+});
+
+})();
+</script>
+</body>
+</html>
